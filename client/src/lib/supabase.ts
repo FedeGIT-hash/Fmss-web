@@ -1,0 +1,8 @@
+import { createClient } from '@supabase/supabase-js';
+
+// NOTA: Estas variables deben estar en un archivo .env
+// Por ahora, el usuario deberá reemplazarlas manualmente o crear el archivo .env
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'TU_SUPABASE_URL_AQUI';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'TU_SUPABASE_ANON_KEY_AQUI';
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);

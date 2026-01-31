@@ -56,9 +56,8 @@ function DashboardHome() {
           <p className="text-slate-500 mt-2">Aquí tienes un resumen de la actividad de hoy.</p>
         </div>
         
-        {/* Botón Nueva Cita con layoutId */}
+        {/* Botón Nueva Cita sin layoutId compartido */}
         <motion.button 
-          layoutId="nueva-cita-modal"
           onClick={() => setIsModalOpen(true)}
           className="group flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 transition-colors shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
         >
@@ -152,10 +151,17 @@ function DashboardHome() {
             
             <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none p-4">
               <motion.div
-                layoutId="nueva-cita-modal"
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.98, y: 10, transition: { duration: 0.2 } }}
                 className="bg-white w-full max-w-2xl overflow-hidden shadow-2xl pointer-events-auto flex flex-col"
-                style={{ borderRadius: 24 }}
-                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                style={{ borderRadius: 24, willChange: "transform, opacity" }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 350, 
+                  damping: 25,
+                  mass: 0.5
+                }}
               >
                 {/* Header del Modal */}
                 <div className="flex items-center justify-between p-6 border-b border-slate-100">
@@ -180,9 +186,9 @@ function DashboardHome() {
 
                 {/* Contenido del formulario */}
                 <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
+                  initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  transition={{ delay: 0.2, duration: 0.4 }}
                   className="p-8 space-y-6 bg-slate-50/50 flex-1 overflow-y-auto max-h-[70vh]"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -89,7 +89,7 @@ function Login() {
             </div>
             <h1 className="text-5xl font-bold mb-4 tracking-tight leading-tight">
               Gestión Inteligente <br/>
-              <span className="text-blue-400">para tu Negocio</span>
+              <span className="text-blue-400">Para el negocio</span>
             </h1>
             <p className="text-lg text-slate-300 leading-relaxed">
               Administra citas, clientes y servicios de mantenimiento con la eficiencia que FMSS te ofrece. Todo en un solo lugar.

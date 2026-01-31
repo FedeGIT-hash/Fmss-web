@@ -28,7 +28,7 @@ const SplitText = ({
   ease = 'power3.out',
   from = { opacity: 0, y: 40 },
   to = { opacity: 1, y: 0 },
-  rootMargin = '-100px',
+  // rootMargin, // Comentado para evitar error de linter
   textAlign = 'center',
   onLetterAnimationComplete
 }: SplitTextProps) => {

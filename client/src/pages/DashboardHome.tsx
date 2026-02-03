@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Users, CalendarCheck, DollarSign, X, Plus } from 'lucide-react';
+import { TrendingUp, Users, CalendarCheck, DollarSign, X, Plus, Eye, EyeOff } from 'lucide-react';
 import SplitText from '../components/SplitText';
 
 function DashboardHome() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showGains, setShowGains] = useState(true);
   const user = localStorage.getItem('userName') || 'Usuario';
 
   const handleAnimationComplete = () => {
@@ -12,10 +13,10 @@ function DashboardHome() {
   };
 
   const stats = [
-    { title: 'Citas Hoy', value: '12', icon: CalendarCheck, color: 'text-blue-600', bg: 'bg-blue-100' },
-    { title: 'Ingresos Mes', value: '$45,200', icon: DollarSign, color: 'text-green-600', bg: 'bg-green-100' },
-    { title: 'Clientes Nuevos', value: '28', icon: Users, color: 'text-purple-600', bg: 'bg-purple-100' },
-    { title: 'Crecimiento', value: '+15%', icon: TrendingUp, color: 'text-orange-600', bg: 'bg-orange-100' },
+    { title: 'Citas Hoy', value: '12', icon: CalendarCheck, color: 'text-blue-600', bg: 'bg-blue-100', isMoney: false },
+    { title: 'Ingresos Mes', value: '$45,200', icon: DollarSign, color: 'text-green-600', bg: 'bg-green-100', isMoney: true },
+    { title: 'Clientes Nuevos', value: '28', icon: Users, color: 'text-purple-600', bg: 'bg-purple-100', isMoney: false },
+    { title: 'Crecimiento', value: '+15%', icon: TrendingUp, color: 'text-orange-600', bg: 'bg-orange-100', isMoney: true },
   ];
 
   const container = {
@@ -56,14 +57,31 @@ function DashboardHome() {
           <p className="text-slate-500 mt-2">Aquí tienes un resumen de la actividad de hoy.</p>
         </div>
         
-        {/* Botón Nueva Cita sin layoutId compartido */}
-        <motion.button 
-          onClick={() => setIsModalOpen(true)}
-          className="group flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 transition-colors shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
-        >
-          <Plus size={20} />
-          <span>Nueva Cita</span>
-        </motion.button>
+        <div className="flex items-center gap-3">
+          {/* Botón para ocultar/mostrar ganancias */}
+          <motion.button
+            onClick={() => setShowGains(!showGains)}
+            className="relative overflow-hidden p-[1px] rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 shadow-lg shadow-violet-500/20 group"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <div className="bg-white text-slate-700 px-4 py-2.5 rounded-[11px] flex items-center gap-2 font-medium group-hover:bg-opacity-95 transition-all h-full">
+              {showGains ? <EyeOff size={18} className="text-violet-600" /> : <Eye size={18} className="text-violet-600" />}
+              <span className="bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent font-bold text-sm hidden sm:inline-block">
+                {showGains ? 'Ocultar' : 'Mostrar'}
+              </span>
+            </div>
+          </motion.button>
+
+          {/* Botón Nueva Cita sin layoutId compartido */}
+          <motion.button 
+            onClick={() => setIsModalOpen(true)}
+            className="group flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 transition-colors shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+          >
+            <Plus size={20} />
+            <span>Nueva Cita</span>
+          </motion.button>
+        </div>
       </div>
 
       <motion.div 
@@ -76,14 +94,29 @@ function DashboardHome() {
           <motion.div 
             key={index}
             variants={item}
-            className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all cursor-default group"
+            className="bg-gradient-to-br from-white to-slate-50/50 p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all cursor-default group hover:-translate-y-1"
           >
             <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 rounded-xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform duration-300`}>
+              <div className={`p-3 rounded-xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
                 <stat.icon size={24} />
               </div>
+              {stat.isMoney && (
+                <div className={`w-2 h-2 rounded-full ${showGains ? 'bg-green-500' : 'bg-slate-300'} transition-colors duration-500`} />
+              )}
             </div>
-            <h3 className="text-3xl font-bold text-slate-800">{stat.value}</h3>
+            <div className="relative overflow-hidden min-h-[40px] flex items-center">
+              <motion.h3 
+                className="text-3xl font-bold text-slate-800"
+                animate={{ 
+                  filter: stat.isMoney && !showGains ? "blur(8px)" : "blur(0px)",
+                  opacity: stat.isMoney && !showGains ? 0.5 : 1,
+                  y: stat.isMoney && !showGains ? 5 : 0
+                }}
+                transition={{ duration: 0.4 }}
+              >
+                {stat.value}
+              </motion.h3>
+            </div>
             <p className="text-slate-500 font-medium text-sm mt-1">{stat.title}</p>
           </motion.div>
         ))}
@@ -95,13 +128,13 @@ function DashboardHome() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm col-span-2"
+          className="bg-gradient-to-br from-white to-slate-50/50 p-6 rounded-2xl border border-slate-100 shadow-sm col-span-2 hover:shadow-lg transition-all hover:-translate-y-1"
         >
           <h3 className="font-bold text-lg text-slate-800 mb-6">Próximas Citas</h3>
           <div className="space-y-4">
             {[1, 2, 3].map((_, i) => (
-              <div key={i} className="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-xl transition-colors border border-transparent hover:border-slate-100">
-                <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center font-bold text-slate-600">
+              <div key={i} className="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-xl transition-colors border border-transparent hover:border-slate-100 group">
+                <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center font-bold text-slate-600 group-hover:scale-110 transition-transform">
                   {10 + i}:00
                 </div>
                 <div className="flex-1">
@@ -120,7 +153,7 @@ function DashboardHome() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-2xl shadow-xl text-white relative overflow-hidden"
+          className="bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-2xl shadow-xl text-white relative overflow-hidden hover:shadow-2xl transition-all hover:-translate-y-1"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10" />
           <h3 className="font-bold text-lg mb-4 relative z-10">Avisos del Sistema</h3>

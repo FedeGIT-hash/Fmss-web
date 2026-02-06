@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, Users, CalendarCheck, DollarSign, X, Plus, Eye, EyeOff } from 'lucide-react';
+import { CalendarCheck, DollarSign, X, Plus, Eye, EyeOff } from 'lucide-react';
 import SplitText from '../components/SplitText';
 
 function DashboardHome() {
@@ -15,8 +15,6 @@ function DashboardHome() {
   const stats = [
     { title: 'Citas Hoy', value: '12', icon: CalendarCheck, color: 'text-blue-600', bg: 'bg-blue-100', isMoney: false },
     { title: 'Ingresos Mes', value: '$45,200', icon: DollarSign, color: 'text-green-600', bg: 'bg-green-100', isMoney: true },
-    { title: 'Clientes Nuevos', value: '28', icon: Users, color: 'text-purple-600', bg: 'bg-purple-100', isMoney: false },
-    { title: 'Crecimiento', value: '+15%', icon: TrendingUp, color: 'text-orange-600', bg: 'bg-orange-100', isMoney: true },
   ];
 
   const container = {

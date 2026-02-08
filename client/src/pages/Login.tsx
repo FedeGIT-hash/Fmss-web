@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { User, Lock, ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
+import { User, Lock, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/icono.png';
 import { supabase } from '../lib/supabase';
@@ -148,7 +148,7 @@ function Login() {
         >
           <motion.div variants={itemVariants} className="mb-8">
             <motion.div
-              className="w-24 h-24 bg-white/10 backdrop-blur-xl rounded-3xl p-4 mb-6 border border-white/20 shadow-2xl shadow-blue-500/20"
+              className="w-18 h-18 bg-white/10 backdrop-blur-xl rounded-2xl p-3 mb-6 border border-white/20 shadow-2xl shadow-blue-500/20"
               whileHover={{ scale: 1.05, rotate: 5 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
@@ -165,7 +165,7 @@ function Login() {
             </p>
           </motion.div>
 
-          {/* Lista de características con animación escalonada */}
+
           <motion.div className="space-y-4">
             {[
               "Control total de citas y agenda",
@@ -187,14 +187,11 @@ function Login() {
           </motion.div>
         </motion.div>
 
-        {/* Patrón de grid sutil mejorado */}
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-soft-light"></div>
 
-        {/* Líneas decorativas */}
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
       </div>
 
-      {/* SECCIÓN DERECHA - Formulario de Login */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -208,15 +205,7 @@ function Login() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <div className="flex items-center gap-2 mb-2">
-              <h2 className="text-3xl font-bold text-slate-900">Bienvenido</h2>
-              <motion.div
-                animate={{ rotate: [0, 15, -15, 0] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-              >
-                <Sparkles className="w-6 h-6 text-amber-400" />
-              </motion.div>
-            </div>
+            <h2 className="text-3xl font-bold text-slate-900 mb-2">Bienvenido</h2>
             <p className="text-slate-500">Ingresa tus credenciales para acceder al sistema.</p>
           </motion.div>
 

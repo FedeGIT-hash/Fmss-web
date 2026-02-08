@@ -66,7 +66,10 @@ const SplitText = ({
             whiteSpace: 'pre',
             willChange: 'transform, opacity' 
           }}
+
         >
+
+          
           {char}
         </span>
       ))}

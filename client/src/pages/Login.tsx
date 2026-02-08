@@ -148,11 +148,11 @@ function Login() {
         >
           <motion.div variants={itemVariants} className="mb-8">
             <motion.div
-              className="w-18 h-18 bg-white/10 backdrop-blur-xl rounded-2xl p-3 mb-6 border border-white/20 shadow-2xl shadow-blue-500/20"
+              className="w-14 h-14 bg-white/10 backdrop-blur-xl rounded-2xl p-2 mb-6 border border-white/20 shadow-2xl shadow-blue-500/20"
               whileHover={{ scale: 1.05, rotate: 5 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <img src={logo} alt="FMSS" className="w-full h-full object-contain drop-shadow-lg" />
+              <img src={logo} alt="FMSS" className="w-full h-full object-contain drop-shadow-lg rounded-xl" />
             </motion.div>
             <h1 className="text-5xl font-bold mb-4 tracking-tight leading-tight">
               Gestión Inteligente <br />

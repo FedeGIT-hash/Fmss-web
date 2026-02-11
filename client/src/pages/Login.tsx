@@ -4,6 +4,7 @@ import { User, Lock, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/icono.png';
 import { supabase } from '../lib/supabase';
+import RotatingText from '../components/RotatingText';
 
 // Componente de partículas flotantes
 const FloatingParticles = () => {
@@ -156,9 +157,21 @@ function Login() {
             </motion.div>
             <h1 className="text-5xl font-bold mb-4 tracking-tight leading-tight">
               Gestión Inteligente <br />
-              <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                Para el negocio
-              </span>
+              <div className="flex items-center gap-2 mt-2">
+                <span>Para el</span>
+                <RotatingText 
+                  texts={['Negocio', 'Futuro', 'Éxito', 'Minsender']} 
+                  mainClassName="px-2 sm:px-2 md:px-3 bg-cyan-300 text-black overflow-hidden py-0.5 sm:py-1 md:py-2 justify-center rounded-lg inline-flex"
+                  staggerFrom="last"
+                  initial={{ y: "100%" }}
+                  animate={{ y: 0 }}
+                  exit={{ y: "-120%" }}
+                  staggerDuration={0.025}
+                  splitLevelClassName="overflow-hidden pb-0.5 sm:pb-1 md:pb-1"
+                  transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                  rotationInterval={2000}
+                />
+              </div>
             </h1>
             <p className="text-lg text-slate-300/90 leading-relaxed">
               Administra citas, clientes y servicios de mantenimiento con la eficiencia que FMSS te ofrece. Todo en un solo lugar.

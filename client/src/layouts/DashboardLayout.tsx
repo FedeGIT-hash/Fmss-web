@@ -49,7 +49,7 @@ function DashboardLayout() {
             {isSidebarOpen && (
               <motion.span 
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                animate={{ opacity: 3 }}
                 className="font-bold text-xl text-slate-800 tracking-tight"
               >
                 FMSS

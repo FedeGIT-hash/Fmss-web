@@ -6,6 +6,10 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        heading: ['Poppins', 'system-ui', 'sans-serif'],
+      },
       colors: {
         primary: '#0f172a', // Slate 900
         secondary: '#334155', // Slate 700

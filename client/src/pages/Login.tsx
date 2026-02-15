@@ -205,12 +205,12 @@ function Login() {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gradient-to-br from-slate-50 via-white to-blue-50/30">
-        <motion.div
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
+          <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          className="w-full max-w-md bg-white/80 backdrop-blur-xl p-10 rounded-3xl shadow-2xl shadow-slate-200/50 border border-slate-100/80"
+          className="w-full max-w-md bg-white/80 dark:bg-slate-900/90 backdrop-blur-xl p-10 rounded-3xl shadow-2xl shadow-slate-200/50 dark:shadow-slate-950/60 border border-slate-100/80 dark:border-slate-800"
         >
           <motion.div
             className="mb-8 text-center lg:text-left"
@@ -218,8 +218,8 @@ function Login() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <h2 className="text-3xl font-bold text-slate-900 mb-2">Bienvenido</h2>
-            <p className="text-slate-500">Ingresa tus credenciales para acceder al sistema.</p>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Bienvenido</h2>
+            <p className="text-slate-500 dark:text-slate-400">Ingresa tus credenciales para acceder al sistema.</p>
           </motion.div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -251,7 +251,7 @@ function Login() {
                   onChange={(e) => setUsername(e.target.value)}
                   onFocus={() => setFocusedField('username')}
                   onBlur={() => setFocusedField(null)}
-                  className="w-full bg-slate-50/80 border-2 border-slate-200 rounded-xl py-3.5 pl-12 pr-4 text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all duration-300 placeholder:text-slate-400"
+                  className="w-full bg-slate-50/80 dark:bg-slate-900/60 border-2 border-slate-200 dark:border-slate-700 rounded-xl py-3.5 pl-12 pr-4 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   placeholder="ejemplo@correo.com o usuario"
                 />
                 <motion.div
@@ -279,7 +279,7 @@ function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setFocusedField('password')}
                   onBlur={() => setFocusedField(null)}
-                  className="w-full bg-slate-50/80 border-2 border-slate-200 rounded-xl py-3.5 pl-12 pr-4 text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white transition-all duration-300 placeholder:text-slate-400"
+                  className="w-full bg-slate-50/80 dark:bg-slate-900/60 border-2 border-slate-200 dark:border-slate-700 rounded-xl py-3.5 pl-12 pr-4 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 transition-all duration-300 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                   placeholder="••••••••"
                 />
                 <motion.div
@@ -296,7 +296,7 @@ function Login() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
             >
-              <label className="flex items-center gap-2 text-slate-600 cursor-pointer hover:text-slate-900 transition-colors group">
+              <label className="flex items-center gap-2 text-slate-600 dark:text-slate-400 cursor-pointer hover:text-slate-900 dark:hover:text-slate-100 transition-colors group">
                 <input type="checkbox" className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 transition-transform group-hover:scale-110" />
                 Recordarme
               </label>
@@ -332,8 +332,8 @@ function Login() {
             </motion.button>
           </form>
 
-          <motion.p
-            className="mt-8 text-center text-sm text-slate-500"
+            <motion.p
+              className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}

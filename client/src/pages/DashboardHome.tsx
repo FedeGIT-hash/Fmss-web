@@ -108,7 +108,7 @@ function DashboardHome() {
           <div className="mb-2">
             <SplitText
               text={`Bienvenido de nuevo, ${user}`}
-              className="text-3xl font-bold text-slate-900"
+              className="text-3xl font-bold text-slate-900 dark:text-slate-100"
               delay={30}
               duration={1}
               ease="back.out"
@@ -121,7 +121,7 @@ function DashboardHome() {
               onLetterAnimationComplete={handleAnimationComplete}
             />
           </div>
-          <p className="text-slate-500 mt-2">Aquí tienes un resumen de la actividad de hoy.</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">Aquí tienes un resumen de la actividad de hoy.</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -131,7 +131,7 @@ function DashboardHome() {
           {/* Botón Nueva Cita sin layoutId compartido */}
           <motion.button
             onClick={() => setIsModalOpen(true)}
-            className="group flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 transition-colors shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+            className="group flex items-center gap-2 px-6 py-3 bg-slate-900 dark:bg-blue-600 text-white rounded-xl font-medium hover:bg-slate-800 dark:hover:bg-blue-500 transition-colors shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
           >
             <Plus size={20} />
             <span>Nueva Cita</span>
@@ -146,11 +146,11 @@ function DashboardHome() {
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
       >
         {stats.map((stat, index) => (
-          <motion.div
-            key={index}
-            variants={item}
-            className="bg-gradient-to-br from-white to-slate-50/50 p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all cursor-default group hover:-translate-y-1"
-          >
+            <motion.div
+          key={index}
+          variants={item}
+          className="bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-800/80 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-lg transition-all cursor-default group hover:-translate-y-1"
+        >
             <div className="flex items-center justify-between mb-4 relative z-10">
               <div className={clsx("p-3 rounded-xl", stat.bg, stat.color)}>
                 <stat.icon size={24} />
@@ -158,7 +158,7 @@ function DashboardHome() {
             </div>
             <div className="relative overflow-hidden min-h-[40px] flex items-center">
               <motion.h3
-                className="text-3xl font-bold text-slate-800"
+                className="text-3xl font-bold text-slate-800 dark:text-slate-100"
                 animate={{
                   filter: stat.isMoney && !showGains ? "blur(8px)" : "blur(0px)",
                   opacity: stat.isMoney && !showGains ? 0.5 : 1,
@@ -169,7 +169,7 @@ function DashboardHome() {
                 {stat.value}
               </motion.h3>
             </div>
-            <p className="text-slate-500 font-medium text-sm mt-1">{stat.title}</p>
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mt-1">{stat.title}</p>
           </motion.div>
         ))}
       </motion.div>
@@ -184,20 +184,20 @@ function DashboardHome() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-gradient-to-br from-white to-slate-50/50 p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1"
+            className="bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-800/80 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1"
           >
-            <h3 className="font-bold text-lg text-slate-800 mb-6">Próximas Citas</h3>
+            <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 mb-6">Próximas Citas</h3>
             <div className="space-y-4">
               {[1, 2, 3].map((_, i) => (
-                <div key={i} className="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-xl transition-colors border border-transparent hover:border-slate-100 group">
-                  <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center font-bold text-slate-600 group-hover:scale-110 transition-transform">
+                <div key={i} className="flex items-center gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700 group">
+                  <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center font-bold text-slate-600 dark:text-slate-100 group-hover:scale-110 transition-transform">
                     {10 + i}:00
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-slate-800">Mantenimiento Aire Acondicionado</h4>
-                    <p className="text-sm text-slate-500">Cliente: Empresa S.A. de C.V.</p>
+                    <h4 className="font-semibold text-slate-800 dark:text-slate-100">Mantenimiento Aire Acondicionado</h4>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Cliente: Empresa S.A. de C.V.</p>
                   </div>
-                  <span className="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full uppercase tracking-wide">
+                  <span className="px-3 py-1 bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-200 text-xs font-bold rounded-full uppercase tracking-wide">
                     Confirmada
                   </span>
                 </div>
@@ -232,11 +232,11 @@ function DashboardHome() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.6 }}
-          className="h-full bg-white p-6 rounded-3xl shadow-lg border border-slate-100 relative overflow-hidden flex flex-col"
+          className="h-full bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-lg border border-slate-100 dark:border-slate-800 relative overflow-hidden flex flex-col"
         >
           <div className="flex flex-col gap-1 mb-6">
             <div className="flex items-center justify-between">
-              <div className="p-3 bg-green-100 text-green-600 rounded-xl inline-block">
+              <div className="p-3 bg-green-100 text-green-600 dark:bg-emerald-500/10 dark:text-emerald-300 rounded-xl inline-block">
                 <DollarSign size={24} />
               </div>
               <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold uppercase tracking-wider">
@@ -244,7 +244,7 @@ function DashboardHome() {
               </span>
             </div>
             <div className="mt-4">
-              <h3 className="text-4xl font-bold text-slate-900">
+              <h3 className="text-4xl font-bold text-slate-900 dark:text-slate-100">
                 {showGains ? '$45,200' : '••••••'}
               </h3>
               <p className="text-green-600 font-medium text-sm flex items-center gap-1 mt-1">

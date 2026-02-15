@@ -15,7 +15,7 @@ import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterv
 import { es } from 'date-fns/locale';
 
 // Tipos para nuestros datos mock
-type ServicioRealizado = {
+export type ServicioRealizado = {
   id: string;
   servicio: string;
   cliente: string;
@@ -24,7 +24,7 @@ type ServicioRealizado = {
   hora: string;
 };
 
-type CitaPendiente = {
+export type CitaPendiente = {
   id: string;
   cliente: string;
   servicio: string;
@@ -32,7 +32,7 @@ type CitaPendiente = {
   estado: 'confirmada' | 'pendiente';
 };
 
-type DatosDia = {
+export type DatosDia = {
   fecha: string; // YYYY-MM-DD
   gananciaTotal?: number;
   serviciosRealizados?: ServicioRealizado[];
@@ -107,7 +107,7 @@ const generateMockData = (): Record<string, DatosDia> => {
   return data;
 };
 
-const MOCK_DB = generateMockData();
+export const citasMockDb: Record<string, DatosDia> = generateMockData();
 
 // NO TOCAR generateMockData ni MOCK_DB, están bien fuera.
 
@@ -150,7 +150,7 @@ function Citas() {
     setSelectedDate(date);
   };
 
-  const selectedDateData = selectedDate ? MOCK_DB[format(selectedDate, 'yyyy-MM-dd')] : null;
+  const selectedDateData = selectedDate ? citasMockDb[format(selectedDate, 'yyyy-MM-dd')] : null;
   const isSelectedPast = selectedDate ? (isPast(selectedDate) && !isToday(selectedDate)) : false;
 
   const months = [
@@ -175,28 +175,28 @@ function Citas() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-140px)]">
+    <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-140px)] text-slate-900 dark:text-slate-100">
 
       {/* SECCIÓN CALENDARIO */}
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex-1 bg-white rounded-3xl shadow-sm border border-slate-200 flex flex-col overflow-hidden relative"
+        className="flex-1 bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden relative"
       >
         {/* Header Calendario */}
-        <div className="p-6 flex items-center justify-between border-b border-slate-100 z-20 relative bg-white">
+        <div className="p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800 z-20 relative bg-white dark:bg-slate-900">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsMonthSelectorOpen(!isMonthSelectorOpen)}
               className="group flex items-center gap-2 px-3 py-2 -ml-3 rounded-xl hover:bg-slate-50 transition-all cursor-pointer"
             >
               <div className="text-left">
-                <h2 className="text-2xl font-bold text-slate-800 capitalize flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 capitalize flex items-center gap-2">
                   {format(currentDate, 'MMMM', { locale: es })}
-                  <span className="text-slate-400 font-normal">{format(currentDate, 'yyyy')}</span>
-                  <ChevronRight size={20} className={clsx("text-slate-400 transition-transform duration-300", isMonthSelectorOpen && "rotate-90")} />
+                  <span className="text-slate-400 dark:text-slate-500 font-normal">{format(currentDate, 'yyyy')}</span>
+                  <ChevronRight size={20} className={clsx("text-slate-400 dark:text-slate-500 transition-transform duration-300", isMonthSelectorOpen && "rotate-90")} />
                 </h2>
-                <p className="text-slate-500 text-sm">
+                <p className="text-slate-500 dark:text-slate-400 text-sm">
                   {isMonthSelectorOpen ? 'Selecciona un mes' : 'Gestiona tu agenda'}
                 </p>
               </div>
@@ -206,14 +206,14 @@ function Citas() {
           <div className="flex items-center gap-2">
             <button
               onClick={goToToday}
-              className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors mr-2"
+              className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 dark:bg-blue-500/10 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors mr-2"
             >
               Hoy
             </button>
-            <button onClick={prevMonth} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-600">
+            <button onClick={prevMonth} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-600 dark:text-slate-300">
               <ChevronLeft size={20} />
             </button>
-            <button onClick={nextMonth} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-600">
+            <button onClick={nextMonth} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-600 dark:text-slate-300">
               <ChevronRight size={20} />
             </button>
           </div>
@@ -230,18 +230,18 @@ function Citas() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.2 }}
-                className="absolute inset-0 bg-white/95 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-8"
+                className="absolute inset-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-8"
               >
                 <div className="w-full max-w-3xl">
                   {/* Selector de Año */}
                   <div className="flex items-center justify-center gap-8 mb-10">
-                    <button onClick={prevYear} className="p-3 hover:bg-slate-100 rounded-full text-slate-500 hover:text-slate-900 transition-colors">
+                    <button onClick={prevYear} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
                       <ChevronLeft size={32} />
                     </button>
-                    <span className="text-5xl font-bold text-slate-800 tracking-tight">
+                    <span className="text-5xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
                       {format(currentDate, 'yyyy')}
                     </span>
-                    <button onClick={nextYear} className="p-3 hover:bg-slate-100 rounded-full text-slate-500 hover:text-slate-900 transition-colors">
+                    <button onClick={nextYear} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
                       <ChevronRight size={32} />
                     </button>
                   </div>
@@ -259,9 +259,9 @@ function Citas() {
                           className={clsx(
                             "py-4 px-2 rounded-2xl text-lg font-medium transition-all duration-200",
                             isSelectedMonth
-                              ? "bg-slate-900 text-white shadow-lg scale-105"
-                              : "bg-slate-50 text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:scale-105",
-                            isCurrentMonth && !isSelectedMonth && "ring-2 ring-blue-500 ring-offset-2"
+                              ? "bg-slate-900 text-white shadow-lg scale-105 dark:bg-slate-100 dark:text-slate-900"
+                              : "bg-slate-50 text-slate-600 hover:bg-blue-50 hover:text-blue-600 hover:scale-105 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-blue-500/10 dark:hover:text-blue-200",
+                            isCurrentMonth && !isSelectedMonth && "ring-2 ring-blue-500 ring-offset-2 dark:ring-blue-400"
                           )}
                         >
                           {month}
@@ -278,7 +278,7 @@ function Citas() {
           <div className="flex-1 p-6 h-full flex flex-col">
             <div className="grid grid-cols-7 mb-4 shrink-0">
               {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(day => (
-                <div key={day} className="text-center text-sm font-semibold text-slate-400 uppercase tracking-wider py-2">
+                <div key={day} className="text-center text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider py-2">
                   {day}
                 </div>
               ))}
@@ -305,18 +305,18 @@ function Citas() {
                     className={clsx(
                       "relative rounded-2xl border p-2 flex flex-col items-start justify-between min-h-[80px] transition-all duration-200",
                       isSelected
-                        ? "ring-2 ring-blue-500 ring-offset-2 z-10 shadow-lg"
+                        ? "ring-2 ring-blue-500 ring-offset-2 z-10 shadow-lg dark:ring-blue-400"
                         : "hover:shadow-md",
                       isTodayDate
-                        ? "bg-blue-50/50 border-blue-200"
-                        : "bg-white border-slate-100",
-                      selectedDate && !isSelected && "opacity-60 grayscale-[0.5]" // Dim other days when one is selected
+                        ? "bg-blue-50/50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/40"
+                        : "bg-white border-slate-100 dark:bg-slate-900 dark:border-slate-800",
+                      selectedDate && !isSelected && "opacity-60 grayscale-[0.5]"
                     )}
                   >
                     <span className={clsx(
                       "text-sm font-semibold w-7 h-7 flex items-center justify-center rounded-full mb-1",
-                      isTodayDate ? "bg-blue-600 text-white" : "text-slate-700",
-                      isSelected && !isTodayDate && "bg-slate-900 text-white"
+                      isTodayDate ? "bg-blue-600 text-white" : "text-slate-700 dark:text-slate-100",
+                      isSelected && !isTodayDate && "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
                     )}>
                       {format(day, 'd')}
                     </span>
@@ -324,12 +324,12 @@ function Citas() {
                     {/* Indicadores de Eventos */}
                     <div className="w-full flex-1 flex flex-col gap-1 overflow-hidden">
                       {dayData?.citasPendientes && (
-                        <div className="w-full bg-indigo-100 text-indigo-700 text-xs px-2 py-0.5 rounded-md truncate font-medium">
+                        <div className="w-full bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-200 text-xs px-2 py-0.5 rounded-md truncate font-medium">
                           {dayData.citasPendientes.length} Cita{dayData.citasPendientes.length > 1 ? 's' : ''}
                         </div>
                       )}
                       {dayData?.gananciaTotal && (
-                        <div className="w-full bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5 rounded-md truncate font-medium flex items-center gap-1">
+                        <div className="w-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200 text-xs px-2 py-0.5 rounded-md truncate font-medium flex items-center gap-1">
                           <DollarSign size={10} />
                           {dayData.gananciaTotal}
                         </div>
@@ -352,7 +352,7 @@ function Citas() {
             animate={{ opacity: 1, x: 0, width: 380 }}
             exit={{ opacity: 0, x: 20, width: 0 }}
             transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-            className="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden flex flex-col"
+            className="bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col"
           >
             {/* Header del Panel */}
             <div className={clsx(
@@ -395,10 +395,10 @@ function Citas() {
                   variants={itemVariants}
                   className="h-full flex flex-col items-center justify-center text-slate-400 text-center space-y-4 py-12"
                 >
-                  <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-2">
-                    <CalendarIcon size={32} className="opacity-50" />
+                  <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-2">
+                    <CalendarIcon size={32} className="opacity-50 text-slate-500 dark:text-slate-300" />
                   </div>
-                  <p>No hay actividad registrada para este día.</p>
+                  <p className="text-slate-500 dark:text-slate-400">No hay actividad registrada para este día.</p>
                   {!isSelectedPast && (
                     <button className="text-blue-600 text-sm font-medium hover:underline">
                       + Agregar Cita Nueva
@@ -413,11 +413,11 @@ function Citas() {
                   {/* KPI Principal */}
                   <motion.div
                     variants={itemVariants}
-                    className="bg-emerald-50 rounded-2xl p-4 border border-emerald-100 flex items-center justify-between"
+                    className="bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl p-4 border border-emerald-100 dark:border-emerald-500/40 flex items-center justify-between"
                   >
                     <div>
-                      <p className="text-emerald-600 text-xs font-bold uppercase tracking-wider mb-1">Total Generado</p>
-                      <p className="text-3xl font-bold text-emerald-700">${selectedDateData.gananciaTotal.toLocaleString()}</p>
+                      <p className="text-emerald-600 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider mb-1">Total Generado</p>
+                      <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">${selectedDateData.gananciaTotal.toLocaleString()}</p>
                     </div>
                     <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600">
                       <DollarSign size={24} />
@@ -426,21 +426,21 @@ function Citas() {
 
                   {/* Lista de Servicios Realizados */}
                   <motion.div variants={itemVariants}>
-                    <h4 className="text-slate-800 font-bold mb-4 flex items-center gap-2">
-                      <CheckCircle2 size={18} className="text-slate-400" />
+                    <h4 className="text-slate-800 dark:text-slate-100 font-bold mb-4 flex items-center gap-2">
+                      <CheckCircle2 size={18} className="text-slate-400 dark:text-slate-300" />
                       Servicios Completados
                     </h4>
                     <div className="space-y-3">
                       {selectedDateData.serviciosRealizados?.map((servicio) => (
-                        <div key={servicio.id} className="group flex items-start gap-3 p-3 hover:bg-slate-50 rounded-xl transition-colors border border-transparent hover:border-slate-100">
-                          <div className="mt-1 w-2 h-2 rounded-full bg-slate-300 group-hover:bg-slate-800 transition-colors"></div>
+                        <div key={servicio.id} className="group flex items-start gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
+                          <div className="mt-1 w-2 h-2 rounded-full bg-slate-300 group-hover:bg-slate-800 dark:bg-slate-600 dark:group-hover:bg-slate-200 transition-colors"></div>
                           <div className="flex-1">
                             <div className="flex justify-between items-start">
-                              <h5 className="font-semibold text-slate-800 text-sm">{servicio.servicio}</h5>
-                              <span className="text-slate-600 font-bold text-xs bg-slate-100 px-2 py-1 rounded-full">${servicio.precio}</span>
+                              <h5 className="font-semibold text-slate-800 dark:text-slate-100 text-sm">{servicio.servicio}</h5>
+                              <span className="text-slate-600 dark:text-slate-200 font-bold text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">${servicio.precio}</span>
                             </div>
-                            <p className="text-xs text-slate-500 mt-0.5">{servicio.cliente}</p>
-                            <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{servicio.cliente}</p>
+                            <div className="flex items-center gap-3 mt-2 text-xs text-slate-400 dark:text-slate-500">
                               <span className="flex items-center gap-1"><Clock size={10} /> {servicio.hora}</span>
                               <span className="flex items-center gap-1"><Clock size={10} /> Duración: {servicio.tiempo}</span>
                             </div>
@@ -457,39 +457,41 @@ function Citas() {
                 <>
                   <motion.div
                     variants={itemVariants}
-                    className="bg-blue-50 rounded-2xl p-4 border border-blue-100 mb-2"
+                    className="bg-blue-50 dark:bg-blue-500/10 rounded-2xl p-4 border border-blue-100 dark:border-blue-500/40 mb-2"
                   >
-                    <p className="text-blue-600 text-sm font-medium">
+                    <p className="text-blue-600 dark:text-blue-200 text-sm font-medium">
                       Tienes <strong>{selectedDateData.citasPendientes.length} citas</strong> programadas para este día.
                     </p>
                   </motion.div>
 
                   <motion.div variants={itemVariants} className="space-y-3">
                     {selectedDateData.citasPendientes.map((cita) => (
-                      <div key={cita.id} className="relative bg-white border border-slate-200 p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow group">
+                      <div key={cita.id} className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow group">
                         <div className="flex justify-between items-start mb-2">
                           <span className={clsx(
                             "px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider",
-                            cita.estado === 'confirmada' ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
+                            cita.estado === 'confirmada'
+                              ? "bg-green-100 text-green-700 dark:bg-emerald-500/10 dark:text-emerald-300"
+                              : "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"
                           )}>
                             {cita.estado}
                           </span>
-                          <button className="text-slate-300 hover:text-slate-600 transition-colors">
+                          <button className="text-slate-300 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-200 transition-colors">
                             <MoreVertical size={16} />
                           </button>
                         </div>
 
-                        <h4 className="font-bold text-slate-800">{cita.cliente}</h4>
-                        <p className="text-sm text-slate-500 mb-3">{cita.servicio}</p>
+                        <h4 className="font-bold text-slate-800 dark:text-slate-100">{cita.cliente}</h4>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">{cita.servicio}</p>
 
-                        <div className="flex items-center gap-2 text-sm font-medium text-slate-700 bg-slate-50 py-2 px-3 rounded-lg w-max">
-                          <Clock size={14} className="text-blue-500" />
+                        <div className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 py-2 px-3 rounded-lg w-max">
+                          <Clock size={14} className="text-blue-500 dark:text-blue-300" />
                           {cita.hora}
                         </div>
 
                         {/* Hover Actions */}
                         <div className="absolute right-4 bottom-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                          <button className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-200 transition-colors" title="Editar">
+                          <button className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-200 flex items-center justify-center hover:bg-blue-200 dark:hover:bg-blue-500/30 transition-colors" title="Editar">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                           </button>
                         </div>
@@ -499,7 +501,7 @@ function Citas() {
 
                   <motion.button
                     variants={itemVariants}
-                    className="w-full py-3 border-2 border-dashed border-slate-300 rounded-xl text-slate-500 font-medium hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 transition-all flex items-center justify-center gap-2 mt-4"
+                    className="w-full py-3 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl text-slate-500 dark:text-slate-300 font-medium hover:border-blue-400 dark:hover:border-blue-500 hover:text-blue-500 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all flex items-center justify-center gap-2 mt-4"
                   >
                     <span className="text-xl">+</span> Agendar Nueva Cita
                   </motion.button>

@@ -84,18 +84,18 @@ function Servicios() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
+      className="space-y-6 text-slate-900 dark:text-slate-100"
     >
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
-            <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center text-orange-600">
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3">
+            <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center text-orange-600 dark:bg-orange-500/10 dark:text-orange-300">
               <Wrench size={20} />
             </div>
             Catálogo de Servicios
           </h1>
-          <p className="text-slate-500 mt-1">Administra los servicios de Aires Acondicionados</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Administra los servicios de Aires Acondicionados</p>
         </div>
 
         <motion.button
@@ -116,12 +116,12 @@ function Servicios() {
           placeholder="Buscar servicios..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all"
+          className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 text-slate-800 dark:text-slate-100"
         />
       </div>
 
       {/* Tabla de Servicios */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="w-8 h-8 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin"></div>
@@ -130,17 +130,17 @@ function Servicios() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-600">Servicio</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-600">Descripción</th>
-                  <th className="text-right py-4 px-6 text-sm font-semibold text-slate-600">
+                <tr className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-600 dark:text-slate-300">Servicio</th>
+                  <th className="text-left py-4 px-6 text-sm font-semibold text-slate-600 dark:text-slate-300">Descripción</th>
+                  <th className="text-right py-4 px-6 text-sm font-semibold text-slate-600 dark:text-slate-300">
                     <div className="flex items-center justify-end gap-1">
                       <DollarSign size={14} />
                       Precio
                     </div>
                   </th>
-                  <th className="text-right py-4 px-6 text-sm font-semibold text-slate-600">Precio + IVA</th>
-                  <th className="text-center py-4 px-6 text-sm font-semibold text-slate-600">
+                  <th className="text-right py-4 px-6 text-sm font-semibold text-slate-600 dark:text-slate-300">Precio + IVA</th>
+                  <th className="text-center py-4 px-6 text-sm font-semibold text-slate-600 dark:text-slate-300">
                     <div className="flex items-center justify-center gap-1">
                       <Clock size={14} />
                       Tiempo Est.
@@ -151,7 +151,7 @@ function Servicios() {
               <tbody>
                 {serviciosFiltrados.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="text-center py-12 text-slate-500">
+                    <td colSpan={5} className="text-center py-12 text-slate-500 dark:text-slate-400">
                       No se encontraron servicios
                     </td>
                   </tr>
@@ -162,31 +162,31 @@ function Servicios() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors cursor-pointer group"
+                      className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer group"
                     >
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-orange-100 to-amber-100 rounded-xl flex items-center justify-center text-orange-600 group-hover:scale-110 transition-transform">
+                          <div className="w-10 h-10 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-500/10 dark:to-amber-500/10 rounded-xl flex items-center justify-center text-orange-600 dark:text-orange-300 group-hover:scale-110 transition-transform">
                             <Wrench size={18} />
                           </div>
-                          <span className="font-medium text-slate-800">{servicio.nombre}</span>
+                          <span className="font-medium text-slate-800 dark:text-slate-100">{servicio.nombre}</span>
                         </div>
                       </td>
                       <td className="py-4 px-6">
-                        <span className="text-slate-500 text-sm">{servicio.descripcion || '-'}</span>
+                        <span className="text-slate-500 dark:text-slate-400 text-sm">{servicio.descripcion || '-'}</span>
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <span className="font-semibold text-slate-800">
+                        <span className="font-semibold text-slate-800 dark:text-slate-100">
                           {formatCurrency(servicio.precio)}
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <span className="font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg">
+                        <span className="font-bold text-emerald-600 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1 rounded-lg">
                           {formatCurrency(calcularConIVA(servicio.precio))}
                         </span>
                       </td>
                       <td className="py-4 px-6 text-center">
-                        <span className="text-slate-600 bg-slate-100 px-3 py-1 rounded-lg text-sm">
+                        <span className="text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg text-sm">
                           {formatTiempo(servicio.tiempo_estimado)}
                         </span>
                       </td>
@@ -200,13 +200,13 @@ function Servicios() {
       </div>
 
       {/* Nota de IVA */}
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
-        <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center text-amber-600 shrink-0">
+      <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/40 rounded-xl p-4 flex items-start gap-3">
+        <div className="w-8 h-8 bg-amber-100 dark:bg-amber-500/20 rounded-lg flex items-center justify-center text-amber-600 dark:text-amber-300 shrink-0">
           <DollarSign size={16} />
         </div>
         <div>
-          <p className="text-amber-800 font-medium">Nota sobre precios</p>
-          <p className="text-amber-700 text-sm">Los precios mostrados en la columna "Precio + IVA" incluyen el 16% de IVA.</p>
+          <p className="text-amber-800 dark:text-amber-200 font-medium">Nota sobre precios</p>
+          <p className="text-amber-700 dark:text-amber-300 text-sm">Los precios mostrados en la columna "Precio + IVA" incluyen el 16% de IVA.</p>
         </div>
       </div>
     </motion.div>

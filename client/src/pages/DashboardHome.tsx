@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CalendarCheck, DollarSign, X, Plus, Eye, EyeOff } from 'lucide-react';
 import SplitText from '../components/SplitText';
 import clsx from 'clsx'; // Import clsx for conditional class names
+import { format, startOfToday, isBefore } from 'date-fns';
+import type { CitaPendiente, DatosDia } from './Citas';
+import { citasMockDb } from './Citas';
 
 // Componente de velas grandes estilizadas (Gráfico Principal)
 const BigCandles = () => {
@@ -77,13 +80,29 @@ function DashboardHome() {
   const [showGains, setShowGains] = useState(true);
   const user = localStorage.getItem('userName') || 'Usuario';
 
+  const today = startOfToday();
+  const todayKey = format(today, 'yyyy-MM-dd');
+
+  const citasHoy = (citasMockDb[todayKey]?.citasPendientes || []).length;
+
+  const upcomingCitas = Object.entries(citasMockDb)
+    .flatMap(([dateKey, dayData]) => {
+      const citas = (dayData as DatosDia).citasPendientes || [];
+      return citas.map((cita: CitaPendiente) => {
+        const dateTime = new Date(`${dateKey}T${cita.hora}:00`);
+        return { ...cita, fecha: dateKey, dateTime };
+      });
+    })
+    .filter((cita) => !isBefore(cita.dateTime, today))
+    .sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime())
+    .slice(0, 3);
+
   const handleAnimationComplete = () => {
     console.log('Welcome animation completed!');
   };
 
   const stats = [
-    { title: 'Citas Hoy', value: '12', icon: CalendarCheck, color: 'text-blue-600', bg: 'bg-blue-100', isMoney: false },
-    // "Ingresos Mes" eliminado de aquí para moverlo abajo
+    { title: 'Citas Hoy', value: String(citasHoy), icon: CalendarCheck, color: 'text-blue-600', bg: 'bg-blue-100', isMoney: false },
   ];
 
   const container = {
@@ -186,23 +205,40 @@ function DashboardHome() {
             transition={{ delay: 0.4 }}
             className="bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-800/80 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1"
           >
-            <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 mb-6">Próximas Citas</h3>
-            <div className="space-y-4">
-              {[1, 2, 3].map((_, i) => (
-                <div key={i} className="flex items-center gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700 group">
-                  <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center font-bold text-slate-600 dark:text-slate-100 group-hover:scale-110 transition-transform">
-                    {10 + i}:00
+            <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 mb-4">Próximas Citas</h3>
+            {upcomingCitas.length === 0 ? (
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                No hay citas programadas próximamente.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {upcomingCitas.map((cita) => (
+                  <div
+                    key={cita.id}
+                    className="flex items-center gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700 group"
+                  >
+                    <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center font-bold text-slate-600 dark:text-slate-100 group-hover:scale-110 transition-transform">
+                      {format(cita.dateTime, 'HH:mm')}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-slate-800 dark:text-slate-100">{cita.cliente}</h4>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">{cita.servicio}</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                        {format(cita.dateTime, "d 'de' MMM, yyyy", { locale: undefined })}
+                      </p>
+                    </div>
+                    <span className={clsx(
+                      "px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wide",
+                      cita.estado === 'confirmada'
+                        ? "bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-200"
+                        : "bg-amber-50 text-amber-700 dark:bg-amber-500/20 dark:text-amber-200"
+                    )}>
+                      {cita.estado}
+                    </span>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-slate-800 dark:text-slate-100">Mantenimiento Aire Acondicionado</h4>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Cliente: Empresa S.A. de C.V.</p>
-                  </div>
-                  <span className="px-3 py-1 bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-200 text-xs font-bold rounded-full uppercase tracking-wide">
-                    Confirmada
-                  </span>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </motion.div>
 
           {/* Avisos del Sistema (Movido aquí) */}
@@ -324,16 +360,16 @@ function DashboardHome() {
                   initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
                   animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                   transition={{ delay: 0.2, duration: 0.4 }}
-                  className="p-8 space-y-6 bg-slate-50/50 flex-1 overflow-y-auto max-h-[70vh]"
+                  className="p-8 space-y-6 bg-slate-50/50 dark:bg-slate-900 flex-1 overflow-y-auto max-h-[70vh]"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-700">Cliente</label>
-                      <input type="text" placeholder="Buscar cliente..." className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Cliente</label>
+                      <input type="text" placeholder="Buscar cliente..." className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500" />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-700">Servicio</label>
-                      <select className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white">
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Servicio</label>
+                      <select className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">
                         <option>Seleccionar servicio...</option>
                         <option value="Mini Split Convencional">Mantenimiento Mini Split Convencional</option>
                         <option value="Mini Split Inverter">Mantenimiento Mini Split Inverter</option>
@@ -342,12 +378,12 @@ function DashboardHome() {
                       </select>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-700">Fecha</label>
-                      <input type="date" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Fecha</label>
+                      <input type="date" className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-700">Hora</label>
-                      <input type="time" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Hora</label>
+                      <input type="time" className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
                     </div>
                   </div>
 

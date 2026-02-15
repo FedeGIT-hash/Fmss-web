@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft,
@@ -13,6 +13,7 @@ import {
 import clsx from 'clsx';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday, isPast, isFuture, getDay } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { gsap } from 'gsap';
 
 // Tipos para nuestros datos mock
 export type ServicioRealizado = {
@@ -112,9 +113,21 @@ export const citasMockDb: Record<string, DatosDia> = generateMockData();
 // NO TOCAR generateMockData ni MOCK_DB, están bien fuera.
 
 function Citas() {
+  const [citasData, setCitasData] = useState<Record<string, DatosDia>>(citasMockDb);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isMonthSelectorOpen, setIsMonthSelectorOpen] = useState(false);
+  const [editingCita, setEditingCita] = useState<{
+    dateKey: string;
+    cita: CitaPendiente;
+  } | null>(null);
+  const [editForm, setEditForm] = useState<{
+    cliente: string;
+    servicio: string;
+    hora: string;
+    estado: 'confirmada' | 'pendiente';
+  } | null>(null);
+  const editModalRef = useRef<HTMLDivElement | null>(null);
 
   // Navegación principal (flechas)
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
@@ -150,7 +163,7 @@ function Citas() {
     setSelectedDate(date);
   };
 
-  const selectedDateData = selectedDate ? citasMockDb[format(selectedDate, 'yyyy-MM-dd')] : null;
+  const selectedDateData = selectedDate ? citasData[format(selectedDate, 'yyyy-MM-dd')] : null;
   const isSelectedPast = selectedDate ? (isPast(selectedDate) && !isToday(selectedDate)) : false;
 
   const months = [
@@ -173,6 +186,90 @@ function Citas() {
     hidden: { y: 20, opacity: 0 },
     show: { y: 0, opacity: 1 }
   };
+
+  useLayoutEffect(() => {
+    if (editingCita && editModalRef.current) {
+      const modal = editModalRef.current;
+      gsap.fromTo(
+        modal,
+        { scale: 0.3, borderRadius: 999, opacity: 0, y: 40 },
+        { scale: 1, borderRadius: 24, opacity: 1, y: 0, duration: 0.45, ease: 'back.out(1.6)' }
+      );
+    }
+  }, [editingCita]);
+
+  const closeEditModal = () => {
+    if (editModalRef.current) {
+      const modal = editModalRef.current;
+      gsap.to(modal, {
+        scale: 0.3,
+        borderRadius: 999,
+        opacity: 0,
+        y: 40,
+        duration: 0.35,
+        ease: 'back.in(1.4)',
+        onComplete: () => {
+          setEditingCita(null);
+          setEditForm(null);
+        }
+      });
+    } else {
+      setEditingCita(null);
+      setEditForm(null);
+    }
+  };
+
+  const handleEditClick = (dateKey: string, cita: CitaPendiente, element: HTMLButtonElement | null) => {
+    if (element) {
+      element.blur();
+    }
+    setEditingCita({ dateKey, cita });
+    setEditForm({
+      cliente: cita.cliente,
+      servicio: cita.servicio,
+      hora: cita.hora,
+      estado: cita.estado
+    });
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingCita || !editForm) return;
+    setCitasData(prev => {
+      const copy = { ...prev };
+      const day = copy[editingCita.dateKey];
+      if (!day || !day.citasPendientes) return prev;
+      copy[editingCita.dateKey] = {
+        ...day,
+        citasPendientes: day.citasPendientes.map(c =>
+          c.id === editingCita.cita.id ? { ...c, ...editForm } : c
+        )
+      };
+      return copy;
+    });
+    closeEditModal();
+  };
+
+  const handleDeleteCita = () => {
+    if (!editingCita) return;
+    setCitasData(prev => {
+      const copy = { ...prev };
+      const day = copy[editingCita.dateKey];
+      if (!day || !day.citasPendientes) return prev;
+      const filtered = day.citasPendientes.filter(c => c.id !== editingCita.cita.id);
+      if (!filtered.length && !day.gananciaTotal && !(day.serviciosRealizados && day.serviciosRealizados.length)) {
+        delete copy[editingCita.dateKey];
+      } else {
+        copy[editingCita.dateKey] = {
+          ...day,
+          citasPendientes: filtered
+        };
+      }
+      return copy;
+    });
+    closeEditModal();
+  };
+
+  const hasEditingCita = Boolean(editingCita && editForm);
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-140px)] text-slate-900 dark:text-slate-100">
@@ -291,7 +388,7 @@ function Citas() {
 
               {daysInMonth.map((day) => {
                 const dateKey = format(day, 'yyyy-MM-dd');
-                const dayData = citasMockDb[dateKey];
+                const dayData = citasData[dateKey];
                 const isSelected = selectedDate ? isSameDay(day, selectedDate) : false;
                 const isTodayDate = isToday(day);
                 const isDayPast = isPast(day) && !isToday(day);
@@ -465,7 +562,9 @@ function Citas() {
                   </motion.div>
 
                   <motion.div variants={itemVariants} className="space-y-3">
-                    {selectedDateData.citasPendientes.map((cita) => (
+                    {selectedDateData.citasPendientes.map((cita) => {
+                      const selectedDateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : '';
+                      return (
                       <div key={cita.id} className="relative bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow group">
                         <div className="flex justify-between items-start mb-2">
                           <span className={clsx(
@@ -489,14 +588,17 @@ function Citas() {
                           {cita.hora}
                         </div>
 
-                        {/* Hover Actions */}
                         <div className="absolute right-4 bottom-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                          <button className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-200 flex items-center justify-center hover:bg-blue-200 dark:hover:bg-blue-500/30 transition-colors" title="Editar">
+                          <button
+                            className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-200 flex items-center justify-center hover:bg-blue-200 dark:hover:bg-blue-500/30 transition-colors"
+                            title="Editar"
+                            onClick={(e) => handleEditClick(selectedDateKey, cita, e.currentTarget)}
+                          >
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                           </button>
                         </div>
                       </div>
-                    ))}
+                    );})}
                   </motion.div>
 
                   <motion.button
@@ -512,6 +614,99 @@ function Citas() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {hasEditingCita && editForm && editingCita && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={closeEditModal} />
+          <div
+            ref={editModalRef}
+            className="relative z-50 w-full max-w-md mx-4 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 flex flex-col gap-4"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Editar cita</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  {format(new Date(editingCita.dateKey), "d 'de' MMMM yyyy", { locale: es })}
+                </p>
+              </div>
+              <button
+                className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                onClick={closeEditModal}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Cliente</label>
+                <input
+                  type="text"
+                  value={editForm.cliente}
+                  onChange={(e) => setEditForm(prev => prev ? { ...prev, cliente: e.target.value } : prev)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Servicio</label>
+                <input
+                  type="text"
+                  value={editForm.servicio}
+                  onChange={(e) => setEditForm(prev => prev ? { ...prev, servicio: e.target.value } : prev)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Hora</label>
+                  <input
+                    type="time"
+                    value={editForm.hora}
+                    onChange={(e) => setEditForm(prev => prev ? { ...prev, hora: e.target.value } : prev)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Estado</label>
+                  <select
+                    value={editForm.estado}
+                    onChange={(e) => setEditForm(prev => prev ? { ...prev, estado: e.target.value as 'confirmada' | 'pendiente' } : prev)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  >
+                    <option value="confirmada">Confirmada</option>
+                    <option value="pendiente">Pendiente</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-2">
+              <button
+                onClick={handleDeleteCita}
+                className="px-3 py-2 text-xs font-semibold rounded-xl bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
+              >
+                Borrar cita
+              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={closeEditModal}
+                  className="px-4 py-2 text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  className="px-4 py-2 text-sm font-semibold rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors"
+                >
+                  Guardar cambios
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

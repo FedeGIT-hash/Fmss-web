@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  LayoutDashboard, 
-  CalendarDays, 
-  Users, 
-  Wrench, 
-  FileText, 
-  LogOut, 
+import {
+  LayoutDashboard,
+  CalendarDays,
+  Users,
+  Wrench,
+  FileText,
+  LogOut,
   Menu,
   X
 } from 'lucide-react';
@@ -34,7 +34,7 @@ function DashboardLayout() {
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
       {/* Sidebar */}
-      <motion.aside 
+      <motion.aside
         initial={{ width: 280 }}
         animate={{ width: isSidebarOpen ? 280 : 80 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -44,10 +44,10 @@ function DashboardLayout() {
         <div className="h-20 flex items-center px-6 border-b border-slate-100">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg overflow-hidden shadow-md bg-white p-1 shrink-0">
-               <img src={logo} alt="FMSS Logo" className="w-full h-full object-contain" />
+              <img src={logo} alt="FMSS Logo" className="w-full h-full object-contain" />
             </div>
             {isSidebarOpen && (
-              <motion.span 
+              <motion.span
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 3 }}
                 className="font-bold text-xl text-slate-800 tracking-tight"
@@ -56,12 +56,13 @@ function DashboardLayout() {
               </motion.span>
             )}
           </div>
-          <button 
+          <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="absolute -right-3 top-8 bg-white border border-slate-200 rounded-full p-1.5 text-slate-400 hover:text-blue-600 shadow-sm hover:shadow transition-all"
           >
             {isSidebarOpen ? <X size={14} /> : <Menu size={14} />}
           </button>
+
         </div>
 
         {/* Nav */}
@@ -73,14 +74,14 @@ function DashboardLayout() {
               end={item.exact}
               className={({ isActive }) => clsx(
                 "flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden",
-                isActive 
-                  ? "bg-blue-50 text-blue-600 font-medium shadow-sm" 
+                isActive
+                  ? "bg-blue-50 text-blue-600 font-medium shadow-sm"
                   : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
               )}
             >
               <item.icon size={22} className="shrink-0" />
               {isSidebarOpen && (
-                <motion.span 
+                <motion.span
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.2 }}
@@ -89,7 +90,7 @@ function DashboardLayout() {
                   {item.label}
                 </motion.span>
               )}
-              
+
               {/* Indicador activo estilo iOS */}
               <NavLink to={item.path} end={item.exact}>
                 {({ isActive }) => isActive && (
@@ -116,7 +117,7 @@ function DashboardLayout() {
               </div>
             )}
             {isSidebarOpen && (
-              <button 
+              <button
                 onClick={handleLogout}
                 className="p-2 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-lg transition-colors"
                 title="Cerrar Sesión"
@@ -132,8 +133,8 @@ function DashboardLayout() {
       <main className="flex-1 overflow-y-auto relative bg-slate-50/50">
         <header className="h-20 bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-10 px-8 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-slate-800">
-             {/* Aquí podríamos poner el título dinámico según la ruta */}
-             Panel de Control
+            {/* Aquí podríamos poner el título dinámico según la ruta */}
+            Panel de Control
           </h2>
           <div className="flex items-center gap-4">
             <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium border border-green-200">
@@ -141,7 +142,7 @@ function DashboardLayout() {
             </span>
           </div>
         </header>
-        
+
         <div className="p-8 max-w-7xl mx-auto">
           <Outlet />
         </div>

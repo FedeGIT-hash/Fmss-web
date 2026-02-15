@@ -217,7 +217,7 @@ function DashboardHome() {
   };
 
   const stats = [
-    { title: 'Citas Hoy', value: String(citasHoy), icon: CalendarCheck, color: 'text-blue-600', bg: 'bg-blue-100', isMoney: false },
+    { title: 'Citas Hoy', value: String(citasHoy), icon: CalendarCheck },
   ];
 
   const container = {
@@ -236,15 +236,15 @@ function DashboardHome() {
   };
 
   return (
-    <div className="space-y-8 relative pb-10">
-      <div className="flex justify-between items-end">
+    <div className="space-y-8 relative pb-10 font-sans">
+      <div className="flex justify-between items-center">
         <div>
-          <div className="mb-2">
+          <div className="mb-1">
             <SplitText
               text={`Bienvenido de nuevo, ${user}`}
-              className="text-3xl font-bold text-slate-900 dark:text-slate-100"
-              delay={30}
-              duration={1}
+              className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-50"
+              delay={20}
+              duration={0.8}
               ease="back.out"
               splitType="chars"
               from={{ opacity: 0, y: 30 }}
@@ -255,20 +255,20 @@ function DashboardHome() {
               onLetterAnimationComplete={handleAnimationComplete}
             />
           </div>
-          <p className="text-slate-500 dark:text-slate-400 mt-2">Aquí tienes un resumen de la actividad de hoy.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Resumen general de tu agenda y rendimiento de hoy.
+          </p>
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Botón para ocultar/mostrar ganancias */}
-
-
-          {/* Botón Nueva Cita sin layoutId compartido */}
           <motion.button
             onClick={() => setIsModalOpen(true)}
-            className="group flex items-center gap-2 px-6 py-3 bg-slate-900 dark:bg-blue-600 text-white rounded-xl font-medium hover:bg-slate-800 dark:hover:bg-blue-500 transition-colors shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.97, y: 0 }}
+            className="group flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 font-medium tracking-tight shadow-md hover:shadow-lg transition-all"
           >
             <Plus size={20} />
-            <span>Nueva Cita</span>
+            <span className="text-sm">Nueva cita</span>
           </motion.button>
         </div>
       </div>
@@ -280,30 +280,27 @@ function DashboardHome() {
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
       >
         {stats.map((stat, index) => (
-            <motion.div
-          key={index}
-          variants={item}
-          className="bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-800/80 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-lg transition-all cursor-default group hover:-translate-y-1"
-        >
-            <div className="flex items-center justify-between mb-4 relative z-10">
-              <div className={clsx("p-3 rounded-xl", stat.bg, stat.color)}>
-                <stat.icon size={24} />
+          <motion.div
+            key={index}
+            variants={item}
+            className="bg-white/90 dark:bg-slate-900/90 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all cursor-default group hover:-translate-y-1"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-9 h-9 rounded-full bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 flex items-center justify-center">
+                <stat.icon size={18} />
               </div>
             </div>
-            <div className="relative overflow-hidden min-h-[40px] flex items-center">
+            <div className="relative overflow-hidden min-h-[36px] flex items-center">
               <motion.h3
-                className="text-3xl font-bold text-slate-800 dark:text-slate-100"
-                animate={{
-                  filter: stat.isMoney && !showGains ? "blur(8px)" : "blur(0px)",
-                  opacity: stat.isMoney && !showGains ? 0.5 : 1,
-                  y: stat.isMoney && !showGains ? 5 : 0
-                }}
-                transition={{ duration: 0.4 }}
+                className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-50"
+                transition={{ duration: 0.25 }}
               >
                 {stat.value}
               </motion.h3>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mt-1">{stat.title}</p>
+            <p className="text-xs font-medium tracking-wide text-slate-500 dark:text-slate-400 mt-1 uppercase">
+              {stat.title}
+            </p>
           </motion.div>
         ))}
       </motion.div>
@@ -315,12 +312,14 @@ function DashboardHome() {
         <div className="space-y-8">
           {/* Próximas Citas */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-800/80 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-lg transition-all hover:-translate-y-1"
+            transition={{ duration: 0.35 }}
+            className="bg-white/90 dark:bg-slate-900/90 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all hover:-translate-y-1"
           >
-            <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100 mb-4">Próximas Citas</h3>
+            <h3 className="font-semibold text-base text-slate-900 dark:text-slate-50 mb-3 tracking-tight">
+              Próximas citas
+            </h3>
             {upcomingCitas.length === 0 ? (
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 No hay citas programadas próximamente.
@@ -330,20 +329,22 @@ function DashboardHome() {
                 {upcomingCitas.map((cita) => (
                   <div
                     key={cita.id}
-                    className="flex items-center gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-700 group"
+                    className="flex items-center gap-4 p-4 rounded-xl transition-colors border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60 group"
                   >
-                    <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center font-bold text-slate-600 dark:text-slate-100 group-hover:scale-110 transition-transform">
+                    <div className="w-11 h-11 bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 rounded-full flex items-center justify-center font-semibold text-sm group-hover:scale-105 transition-transform">
                       {format(cita.dateTime, 'HH:mm')}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-semibold text-slate-800 dark:text-slate-100">{cita.cliente}</h4>
+                      <h4 className="font-medium text-sm text-slate-900 dark:text-slate-50">
+                        {cita.cliente}
+                      </h4>
                       <p className="text-sm text-slate-500 dark:text-slate-400">{cita.servicio}</p>
                       <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                         {format(cita.dateTime, "d 'de' MMM, yyyy", { locale: undefined })}
                       </p>
                     </div>
                     <span className={clsx(
-                      "px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wide",
+                      "px-3 py-1 text-[10px] font-semibold rounded-full uppercase tracking-wide",
                       cita.estado === 'confirmada'
                         ? "bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-200"
                         : "bg-amber-50 text-amber-700 dark:bg-amber-500/20 dark:text-amber-200"
@@ -358,13 +359,13 @@ function DashboardHome() {
 
           {/* Avisos del Sistema (Movido aquí) */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-2xl shadow-xl text-white relative overflow-hidden hover:shadow-2xl transition-all hover:-translate-y-1"
+            transition={{ duration: 0.4 }}
+            className="bg-slate-900 p-6 rounded-2xl shadow-lg text-white relative overflow-hidden hover:shadow-xl transition-all hover:-translate-y-1"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10" />
-            <h3 className="font-bold text-lg mb-4 relative z-10">Avisos del Sistema</h3>
+            <h3 className="font-semibold text-base mb-4 relative z-10 tracking-tight">Avisos del sistema</h3>
             <div className="space-y-4 relative z-10">
               <div className="p-4 bg-white/10 rounded-xl backdrop-blur-sm border border-white/10">
                 <p className="text-sm font-medium">Actualización de inventario requerida</p>

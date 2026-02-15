@@ -41,6 +41,11 @@ export type DatosDia = {
   citasPendientes?: CitaPendiente[];
 };
 
+interface ServicioCatalogo {
+  id_servicio: number;
+  nombre: string;
+}
+
 // Generador de datos mock
 const generateMockData = (): Record<string, DatosDia> => {
   const data: Record<string, DatosDia> = {};
@@ -127,6 +132,7 @@ function Citas() {
     estado: 'confirmada' | 'pendiente';
   } | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioCatalogo[]>([]);
   const editModalRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -184,6 +190,31 @@ function Citas() {
     };
 
     loadCitas();
+  }, []);
+
+  useEffect(() => {
+    const loadServicios = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('SERVICIO')
+          .select('id_servicio, nombre')
+          .eq('activo', true)
+          .order('nombre');
+
+        if (error) {
+          console.error('Error cargando servicios para citas:', error);
+          return;
+        }
+
+        if (data) {
+          setServiciosCatalogo(data as any);
+        }
+      } catch (e) {
+        console.error('Error inesperado cargando servicios para citas', e);
+      }
+    };
+
+    loadServicios();
   }, []);
 
   // Navegación principal (flechas)
@@ -649,14 +680,12 @@ function Citas() {
                     <CalendarIcon size={32} className="opacity-50 text-slate-500 dark:text-slate-300" />
                   </div>
                   <p className="text-slate-500 dark:text-slate-400">No hay actividad registrada para este día.</p>
-                  {!isSelectedPast && (
                   <button
                     className="text-blue-600 text-sm font-medium hover:underline"
                     onClick={handleCreateClick}
                   >
-                      + Agregar Cita Nueva
-                    </button>
-                  )}
+                    + Agregar Cita Nueva
+                  </button>
                 </motion.div>
               )}
 
@@ -706,7 +735,7 @@ function Citas() {
               )}
 
               {/* VISTA FUTURA/HOY: CITAS PENDIENTES */}
-              {!isSelectedPast && selectedDateData?.citasPendientes && (
+              {selectedDateData?.citasPendientes && (
                 <>
                   <motion.div
                     variants={itemVariants}
@@ -807,12 +836,22 @@ function Citas() {
 
               <div className="space-y-1">
                 <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Servicio</label>
-                <input
-                  type="text"
+                <select
                   value={editForm.servicio}
                   onChange={(e) => setEditForm(prev => prev ? { ...prev, servicio: e.target.value } : prev)}
                   className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                />
+                >
+                  <option value="">Selecciona un servicio...</option>
+                  {serviciosCatalogo.map((servicio) => (
+                    <option key={servicio.id_servicio} value={servicio.nombre}>
+                      {servicio.nombre}
+                    </option>
+                  ))}
+                  {editForm.servicio &&
+                    !serviciosCatalogo.some(s => s.nombre === editForm.servicio) && (
+                      <option value={editForm.servicio}>{editForm.servicio}</option>
+                  )}
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">

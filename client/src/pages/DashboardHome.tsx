@@ -1,11 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CalendarCheck, DollarSign, X, Plus, Eye, EyeOff } from 'lucide-react';
 import SplitText from '../components/SplitText';
 import clsx from 'clsx'; // Import clsx for conditional class names
-import { format, startOfToday, isBefore } from 'date-fns';
-import type { CitaPendiente, DatosDia } from './Citas';
-import { citasMockDb } from './Citas';
+import { format, startOfToday, isBefore, isSameDay } from 'date-fns';
+import type { CitaPendiente } from './Citas';
+import { supabase } from '../lib/supabase';
+
+interface ServicioCatalogo {
+  id_servicio: number;
+  nombre: string;
+}
 
 // Componente de velas grandes estilizadas (Gráfico Principal)
 const BigCandles = () => {
@@ -78,24 +83,134 @@ const BigCandles = () => {
 function DashboardHome() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showGains, setShowGains] = useState(true);
+  const [citasHoy, setCitasHoy] = useState(0);
+  const [upcomingCitas, setUpcomingCitas] = useState<(CitaPendiente & { fecha: string; dateTime: Date })[]>([]);
+  const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioCatalogo[]>([]);
+  const [formCliente, setFormCliente] = useState('');
+  const [formServicio, setFormServicio] = useState('');
+  const [formFecha, setFormFecha] = useState('');
+  const [formHora, setFormHora] = useState('10:00');
+  const [isSaving, setIsSaving] = useState(false);
   const user = localStorage.getItem('userName') || 'Usuario';
 
   const today = startOfToday();
   const todayKey = format(today, 'yyyy-MM-dd');
 
-  const citasHoy = (citasMockDb[todayKey]?.citasPendientes || []).length;
+  const loadCitasDashboard = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('cita_ui')
+        .select('*')
+        .order('fecha', { ascending: true })
+        .order('hora', { ascending: true });
 
-  const upcomingCitas = Object.entries(citasMockDb)
-    .flatMap(([dateKey, dayData]) => {
-      const citas = (dayData as DatosDia).citasPendientes || [];
-      return citas.map((cita: CitaPendiente) => {
-        const dateTime = new Date(`${dateKey}T${cita.hora}:00`);
-        return { ...cita, fecha: dateKey, dateTime };
+      if (error) {
+        console.error('Error cargando citas para dashboard:', error);
+        return;
+      }
+
+      if (!data) return;
+
+      const citasEnriquecidas = (data as any[]).map((row) => {
+        const fecha = row.fecha as string;
+        const horaRaw = String(row.hora ?? '');
+        const hora = horaRaw.length >= 5 ? horaRaw.slice(0, 5) : horaRaw;
+        const dateTime = new Date(`${fecha}T${hora}:00`);
+        return {
+          id: row.id as string,
+          cliente: row.cliente as string,
+          servicio: row.servicio as string,
+          hora,
+          estado: row.estado as 'confirmada' | 'pendiente',
+          fecha,
+          dateTime
+        };
       });
-    })
-    .filter((cita) => !isBefore(cita.dateTime, today))
-    .sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime())
-    .slice(0, 3);
+
+      const hoy = citasEnriquecidas.filter((cita) => isSameDay(cita.dateTime, today));
+      const proximas = citasEnriquecidas
+        .filter((cita) => !isBefore(cita.dateTime, today))
+        .sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime())
+        .slice(0, 3);
+
+      setCitasHoy(hoy.length);
+      setUpcomingCitas(proximas);
+    } catch (e) {
+      console.error('Error inesperado cargando citas para dashboard', e);
+    }
+  };
+
+  useEffect(() => {
+    loadCitasDashboard();
+  }, [todayKey, today]);
+
+  useEffect(() => {
+    const loadServicios = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('SERVICIO')
+          .select('id_servicio, nombre')
+          .eq('activo', true)
+          .order('nombre');
+
+        if (error) {
+          console.error('Error cargando servicios para dashboard:', error);
+          return;
+        }
+
+        if (data) {
+          setServiciosCatalogo(data as any);
+        }
+      } catch (e) {
+        console.error('Error inesperado cargando servicios para dashboard', e);
+      }
+    };
+
+    loadServicios();
+  }, []);
+
+  useEffect(() => {
+    if (!formFecha) {
+      setFormFecha(todayKey);
+    }
+  }, [todayKey, formFecha]);
+
+  const handleAgendarCita = async () => {
+    if (!formCliente || !formServicio) {
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const fecha = formFecha || todayKey;
+      const hora = formHora || '10:00';
+
+      const { error } = await supabase
+        .from('cita_ui')
+        .insert({
+          fecha,
+          hora,
+          cliente: formCliente,
+          servicio: formServicio,
+          estado: 'pendiente'
+        });
+
+      if (error) {
+        console.error('Error creando cita desde dashboard:', error);
+        return;
+      }
+
+      await loadCitasDashboard();
+      setIsModalOpen(false);
+      setFormCliente('');
+      setFormServicio('');
+      setFormFecha(todayKey);
+      setFormHora('10:00');
+    } catch (e) {
+      console.error('Error inesperado creando cita desde dashboard', e);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleAnimationComplete = () => {
     console.log('Welcome animation completed!');
@@ -365,31 +480,56 @@ function DashboardHome() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Cliente</label>
-                      <input type="text" placeholder="Buscar cliente..." className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500" />
+                      <input
+                        type="text"
+                        placeholder="Nombre del cliente..."
+                        value={formCliente}
+                        onChange={(e) => setFormCliente(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                      />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Servicio</label>
-                      <select className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">
-                        <option>Seleccionar servicio...</option>
-                        <option value="Mini Split Convencional">Mantenimiento Mini Split Convencional</option>
-                        <option value="Mini Split Inverter">Mantenimiento Mini Split Inverter</option>
-                        <option value="Instalación Mini Split Convencional">Instalación Mini Split Convencional</option>
-                        <option value="Instalación Mini Split Inverter">Instalación Mini Split Inverter</option>
+                      <select
+                        value={formServicio}
+                        onChange={(e) => setFormServicio(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100"
+                      >
+                        <option value="">Seleccionar servicio...</option>
+                        {serviciosCatalogo.map((servicio) => (
+                          <option key={servicio.id_servicio} value={servicio.nombre}>
+                            {servicio.nombre}
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Fecha</label>
-                      <input type="date" className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                      <input
+                        type="date"
+                        value={formFecha}
+                        onChange={(e) => setFormFecha(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                      />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Hora</label>
-                      <input type="time" className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                      <input
+                        type="time"
+                        value={formHora}
+                        onChange={(e) => setFormHora(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                      />
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-slate-700">Notas adicionales</label>
-                    <textarea placeholder="Detalles específicos para la cita..." rows={3} className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"></textarea>
+                    <textarea
+                      placeholder="Detalles específicos para la cita..."
+                      rows={3}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"
+                    ></textarea>
                   </div>
                 </motion.div>
 
@@ -401,8 +541,14 @@ function DashboardHome() {
                   >
                     Cancelar
                   </button>
-                  <button className="px-6 py-2.5 bg-slate-900 text-white font-medium rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-blue-900/20">
-                    Agendar Cita
+                  <button
+                    onClick={handleAgendarCita}
+                    disabled={isSaving || !formCliente || !formServicio}
+                    className={`px-6 py-2.5 bg-slate-900 text-white font-medium rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-blue-900/20 ${
+                      (isSaving || !formCliente || !formServicio) ? 'opacity-60 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    {isSaving ? 'Guardando...' : 'Agendar Cita'}
                   </button>
                 </div>
               </motion.div>

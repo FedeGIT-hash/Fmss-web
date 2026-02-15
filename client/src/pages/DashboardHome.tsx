@@ -1,12 +1,11 @@
-import { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CalendarCheck, DollarSign, X, Plus, Eye, EyeOff } from 'lucide-react';
 import SplitText from '../components/SplitText';
 import clsx from 'clsx'; // Import clsx for conditional class names
 import { format, startOfToday, isBefore, isSameDay } from 'date-fns';
 import type { CitaPendiente } from './Citas';
 import { supabase } from '../lib/supabase';
-import { gsap } from 'gsap';
 
 interface ServicioCatalogo {
   id_servicio: number;
@@ -93,7 +92,6 @@ function DashboardHome() {
   const [formHora, setFormHora] = useState('10:00');
   const [isSaving, setIsSaving] = useState(false);
   const user = localStorage.getItem('userName') || 'Usuario';
-  const newCitaContainerRef = useRef<HTMLDivElement | null>(null);
 
   const today = startOfToday();
   const todayKey = format(today, 'yyyy-MM-dd');
@@ -176,20 +174,6 @@ function DashboardHome() {
       setFormFecha(todayKey);
     }
   }, [todayKey, formFecha]);
-
-  useLayoutEffect(() => {
-    const el = newCitaContainerRef.current;
-    if (!el) return;
-    if (isModalOpen) {
-      gsap.fromTo(
-        el,
-        { scale: 0.85, opacity: 0, y: -8 },
-        { scale: 1, opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }
-      );
-    } else {
-      gsap.to(el, { scale: 1, opacity: 1, y: 0, duration: 0.25, ease: 'power2.inOut' });
-    }
-  }, [isModalOpen]);
 
   const handleAgendarCita = async () => {
     if (!formCliente || !formServicio) {
@@ -277,121 +261,15 @@ function DashboardHome() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div
-            ref={newCitaContainerRef}
-            className={clsx(
-              "relative",
-              isModalOpen &&
-                "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl px-5 py-4"
-            )}
+          <motion.button
+            onClick={() => setIsModalOpen(true)}
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.97, y: 0 }}
+            className="group flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 font-medium tracking-tight shadow-md hover:shadow-lg transition-all"
           >
-            {!isModalOpen && (
-              <motion.button
-                onClick={() => setIsModalOpen(true)}
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.97, y: 0 }}
-                className="group flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 font-medium tracking-tight shadow-md hover:shadow-lg transition-all"
-              >
-                <Plus size={20} />
-                <span className="text-sm">Nueva cita</span>
-              </motion.button>
-            )}
-            {isModalOpen && (
-              <div className="w-[360px] max-w-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 rounded-lg flex items-center justify-center">
-                      <Plus size={18} />
-                    </div>
-                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">
-                      Nueva cita
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => setIsModalOpen(false)}
-                    className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-700 dark:text-slate-200">
-                        Cliente
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Nombre del cliente..."
-                        value={formCliente}
-                        onChange={(e) => setFormCliente(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-700 dark:text-slate-200">
-                        Servicio
-                      </label>
-                      <select
-                        value={formServicio}
-                        onChange={(e) => setFormServicio(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                      >
-                        <option value="">Seleccionar servicio...</option>
-                        {serviciosCatalogo.map((servicio) => (
-                          <option key={servicio.id_servicio} value={servicio.nombre}>
-                            {servicio.nombre}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="flex gap-3">
-                      <div className="flex-1 space-y-1">
-                        <label className="text-xs font-medium text-slate-700 dark:text-slate-200">
-                          Fecha
-                        </label>
-                        <input
-                          type="date"
-                          value={formFecha}
-                          onChange={(e) => setFormFecha(e.target.value)}
-                          className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                        />
-                      </div>
-                      <div className="w-28 space-y-1">
-                        <label className="text-xs font-medium text-slate-700 dark:text-slate-200">
-                          Hora
-                        </label>
-                        <input
-                          type="time"
-                          value={formHora}
-                          onChange={(e) => setFormHora(e.target.value)}
-                          className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex justify-end gap-2 pt-2">
-                    <button
-                      onClick={() => setIsModalOpen(false)}
-                      className="px-4 py-2 text-xs font-medium rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      onClick={handleAgendarCita}
-                      disabled={isSaving || !formCliente || !formServicio}
-                      className={clsx(
-                        "px-4 py-2 text-xs font-semibold rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 shadow-md transition-all",
-                        (isSaving || !formCliente || !formServicio) && "opacity-60 cursor-not-allowed"
-                      )}
-                    >
-                      {isSaving ? 'Guardando...' : 'Agendar cita'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+            <Plus size={20} />
+            <span className="text-sm">Nueva cita</span>
+          </motion.button>
         </div>
       </div>
 
@@ -546,6 +424,136 @@ function DashboardHome() {
 
       </div>
 
+      {/* Modal Nueva Cita */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsModalOpen(false)}
+              className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40"
+            />
+
+            <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.98, y: 10, transition: { duration: 0.2 } }}
+                className="bg-white w-full max-w-2xl overflow-hidden shadow-2xl pointer-events-auto flex flex-col"
+                style={{ borderRadius: 24, willChange: "transform, opacity" }}
+                transition={{
+                  type: "spring",
+                  stiffness: 350,
+                  damping: 25,
+                  mass: 0.5
+                }}
+              >
+                <div className="flex items-center justify-between p-6 border-b border-slate-100">
+                  <motion.h3
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="text-xl font-bold text-slate-800 flex items-center gap-2"
+                  >
+                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+                      <Plus size={18} />
+                    </div>
+                    Nueva Cita
+                  </motion.h3>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setIsModalOpen(false); }}
+                    className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500 hover:text-slate-700"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  transition={{ delay: 0.2, duration: 0.4 }}
+                  className="p-8 space-y-6 bg-slate-50/50 dark:bg-slate-900 flex-1 overflow-y-auto max-h-[70vh]"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Cliente</label>
+                      <input
+                        type="text"
+                        placeholder="Nombre del cliente..."
+                        value={formCliente}
+                        onChange={(e) => setFormCliente(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Servicio</label>
+                      <select
+                        value={formServicio}
+                        onChange={(e) => setFormServicio(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100"
+                      >
+                        <option value="">Seleccionar servicio...</option>
+                        {serviciosCatalogo.map((servicio) => (
+                          <option key={servicio.id_servicio} value={servicio.nombre}>
+                            {servicio.nombre}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Fecha</label>
+                      <input
+                        type="date"
+                        value={formFecha}
+                        onChange={(e) => setFormFecha(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Hora</label>
+                      <input
+                        type="time"
+                        value={formHora}
+                        onChange={(e) => setFormHora(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700">Notas adicionales</label>
+                    <textarea
+                      placeholder="Detalles específicos para la cita..."
+                      rows={3}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none"
+                    ></textarea>
+                  </div>
+                </motion.div>
+
+                <div className="p-6 border-t border-slate-100 bg-white flex justify-end gap-3">
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-6 py-2.5 text-slate-600 font-medium hover:bg-slate-100 rounded-xl transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleAgendarCita}
+                    disabled={isSaving || !formCliente || !formServicio}
+                    className={`px-6 py-2.5 bg-slate-900 text-white font-medium rounded-xl hover:bg-slate-800 transition-all shadow-lg shadow-blue-900/20 ${
+                      (isSaving || !formCliente || !formServicio) ? 'opacity-60 cursor-not-allowed' : ''
+                    }`}
+                  >
+                    {isSaving ? 'Guardando...' : 'Agendar Cita'}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect } from 'react';
+import { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft,
@@ -14,6 +14,7 @@ import clsx from 'clsx';
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isToday, isPast, isFuture, getDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { gsap } from 'gsap';
+import { supabase } from '../lib/supabase';
 
 // Tipos para nuestros datos mock
 export type ServicioRealizado = {
@@ -110,8 +111,6 @@ const generateMockData = (): Record<string, DatosDia> => {
 
 export const citasMockDb: Record<string, DatosDia> = generateMockData();
 
-// NO TOCAR generateMockData ni MOCK_DB, están bien fuera.
-
 function Citas() {
   const [citasData, setCitasData] = useState<Record<string, DatosDia>>(citasMockDb);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -128,6 +127,63 @@ function Citas() {
     estado: 'confirmada' | 'pendiente';
   } | null>(null);
   const editModalRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const loadCitas = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('cita_ui')
+          .select('*')
+          .order('fecha', { ascending: true })
+          .order('hora', { ascending: true });
+
+        if (error) {
+          console.error('Error cargando citas desde Supabase:', error);
+          return;
+        }
+
+        if (!data) return;
+
+        const base: Record<string, DatosDia> = {};
+
+        Object.entries(citasMockDb).forEach(([key, day]) => {
+          const { citasPendientes, ...rest } = day;
+          base[key] = { ...rest };
+        });
+
+        (data as any[]).forEach((row) => {
+          const dateKey = row.fecha as string;
+          const horaRaw = String(row.hora ?? '');
+          const hora = horaRaw.length >= 5 ? horaRaw.slice(0, 5) : horaRaw;
+
+          if (!base[dateKey]) {
+            base[dateKey] = { fecha: dateKey };
+          }
+
+          const current = base[dateKey].citasPendientes || [];
+          base[dateKey] = {
+            ...base[dateKey],
+            citasPendientes: [
+              ...current,
+              {
+                id: row.id as string,
+                cliente: row.cliente as string,
+                servicio: row.servicio as string,
+                hora,
+                estado: row.estado as 'confirmada' | 'pendiente'
+              }
+            ]
+          };
+        });
+
+        setCitasData(base);
+      } catch (e) {
+        console.error('Error inesperado cargando citas desde Supabase', e);
+      }
+    };
+
+    loadCitas();
+  }, []);
 
   // Navegación principal (flechas)
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
@@ -232,8 +288,24 @@ function Citas() {
     });
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editingCita || !editForm) return;
+
+    const { error } = await supabase
+      .from('cita_ui')
+      .update({
+        cliente: editForm.cliente,
+        servicio: editForm.servicio,
+        hora: editForm.hora,
+        estado: editForm.estado
+      })
+      .eq('id', editingCita.cita.id);
+
+    if (error) {
+      console.error('Error actualizando cita en Supabase:', error);
+      return;
+    }
+
     setCitasData(prev => {
       const copy = { ...prev };
       const day = copy[editingCita.dateKey];
@@ -249,8 +321,19 @@ function Citas() {
     closeEditModal();
   };
 
-  const handleDeleteCita = () => {
+  const handleDeleteCita = async () => {
     if (!editingCita) return;
+
+    const { error } = await supabase
+      .from('cita_ui')
+      .delete()
+      .eq('id', editingCita.cita.id);
+
+    if (error) {
+      console.error('Error eliminando cita en Supabase:', error);
+      return;
+    }
+
     setCitasData(prev => {
       const copy = { ...prev };
       const day = copy[editingCita.dateKey];

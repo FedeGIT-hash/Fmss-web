@@ -126,6 +126,7 @@ function Citas() {
     hora: string;
     estado: 'confirmada' | 'pendiente';
   } | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
   const editModalRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -267,11 +268,13 @@ function Citas() {
         onComplete: () => {
           setEditingCita(null);
           setEditForm(null);
+          setIsCreating(false);
         }
       });
     } else {
       setEditingCita(null);
       setEditForm(null);
+      setIsCreating(false);
     }
   };
 
@@ -288,36 +291,103 @@ function Citas() {
     });
   };
 
+  const handleCreateClick = () => {
+    if (!selectedDate) return;
+    const dateKey = format(selectedDate, 'yyyy-MM-dd');
+    setIsCreating(true);
+    setEditingCita({
+      dateKey,
+      cita: {
+        id: '',
+        cliente: '',
+        servicio: '',
+        hora: '10:00',
+        estado: 'pendiente'
+      }
+    });
+    setEditForm({
+      cliente: '',
+      servicio: '',
+      hora: '10:00',
+      estado: 'pendiente'
+    });
+  };
+
   const handleSaveEdit = async () => {
     if (!editingCita || !editForm) return;
 
-    const { error } = await supabase
-      .from('cita_ui')
-      .update({
-        cliente: editForm.cliente,
-        servicio: editForm.servicio,
-        hora: editForm.hora,
-        estado: editForm.estado
-      })
-      .eq('id', editingCita.cita.id);
+    if (isCreating) {
+      const { data, error } = await supabase
+        .from('cita_ui')
+        .insert({
+          fecha: editingCita.dateKey,
+          hora: editForm.hora,
+          cliente: editForm.cliente,
+          servicio: editForm.servicio,
+          estado: editForm.estado
+        })
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error actualizando cita en Supabase:', error);
-      return;
+      if (error) {
+        console.error('Error creando cita en Supabase:', error);
+        return;
+      }
+
+      setCitasData(prev => {
+        const copy = { ...prev };
+        const dayKey = editingCita.dateKey;
+        if (!copy[dayKey]) {
+          copy[dayKey] = { fecha: dayKey };
+        }
+        const horaRaw = String((data as any).hora ?? '');
+        const hora = horaRaw.length >= 5 ? horaRaw.slice(0, 5) : horaRaw;
+        const current = copy[dayKey].citasPendientes || [];
+        copy[dayKey] = {
+          ...copy[dayKey],
+          citasPendientes: [
+            ...current,
+            {
+              id: (data as any).id as string,
+              cliente: (data as any).cliente as string,
+              servicio: (data as any).servicio as string,
+              hora,
+              estado: (data as any).estado as 'confirmada' | 'pendiente'
+            }
+          ]
+        };
+        return copy;
+      });
+    } else {
+      const { error } = await supabase
+        .from('cita_ui')
+        .update({
+          cliente: editForm.cliente,
+          servicio: editForm.servicio,
+          hora: editForm.hora,
+          estado: editForm.estado
+        })
+        .eq('id', editingCita.cita.id);
+
+      if (error) {
+        console.error('Error actualizando cita en Supabase:', error);
+        return;
+      }
+
+      setCitasData(prev => {
+        const copy = { ...prev };
+        const day = copy[editingCita.dateKey];
+        if (!day || !day.citasPendientes) return prev;
+        copy[editingCita.dateKey] = {
+          ...day,
+          citasPendientes: day.citasPendientes.map(c =>
+            c.id === editingCita.cita.id ? { ...c, ...editForm } : c
+          )
+        };
+        return copy;
+      });
     }
 
-    setCitasData(prev => {
-      const copy = { ...prev };
-      const day = copy[editingCita.dateKey];
-      if (!day || !day.citasPendientes) return prev;
-      copy[editingCita.dateKey] = {
-        ...day,
-        citasPendientes: day.citasPendientes.map(c =>
-          c.id === editingCita.cita.id ? { ...c, ...editForm } : c
-        )
-      };
-      return copy;
-    });
     closeEditModal();
   };
 
@@ -580,7 +650,10 @@ function Citas() {
                   </div>
                   <p className="text-slate-500 dark:text-slate-400">No hay actividad registrada para este día.</p>
                   {!isSelectedPast && (
-                    <button className="text-blue-600 text-sm font-medium hover:underline">
+                  <button
+                    className="text-blue-600 text-sm font-medium hover:underline"
+                    onClick={handleCreateClick}
+                  >
                       + Agregar Cita Nueva
                     </button>
                   )}
@@ -687,6 +760,7 @@ function Citas() {
                   <motion.button
                     variants={itemVariants}
                     className="w-full py-3 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl text-slate-500 dark:text-slate-300 font-medium hover:border-blue-400 dark:hover:border-blue-500 hover:text-blue-500 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all flex items-center justify-center gap-2 mt-4"
+                    onClick={handleCreateClick}
                   >
                     <span className="text-xl">+</span> Agendar Nueva Cita
                   </motion.button>

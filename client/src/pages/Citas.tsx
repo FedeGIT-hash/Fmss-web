@@ -291,7 +291,7 @@ function Citas() {
 
               {daysInMonth.map((day) => {
                 const dateKey = format(day, 'yyyy-MM-dd');
-                const dayData = MOCK_DB[dateKey];
+                const dayData = citasMockDb[dateKey];
                 const isSelected = selectedDate ? isSameDay(day, selectedDate) : false;
                 const isTodayDate = isToday(day);
                 const isDayPast = isPast(day) && !isToday(day);

@@ -32,6 +32,8 @@ export type CitaPendiente = {
   servicio: string;
   hora: string;
   estado: 'confirmada' | 'pendiente';
+  telefono?: string;
+  domicilio?: string;
 };
 
 export type DatosDia = {
@@ -130,6 +132,8 @@ function Citas() {
     servicio: string;
     hora: string;
     estado: 'confirmada' | 'pendiente';
+    telefono?: string;
+    domicilio?: string;
   } | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioCatalogo[]>([]);
@@ -177,7 +181,9 @@ function Citas() {
                 cliente: row.cliente as string,
                 servicio: row.servicio as string,
                 hora,
-                estado: row.estado as 'confirmada' | 'pendiente'
+                estado: row.estado as 'confirmada' | 'pendiente',
+                telefono: (row as any).telefono as (string | undefined),
+                domicilio: (row as any).domicilio as (string | undefined)
               }
             ]
           };
@@ -333,14 +339,18 @@ function Citas() {
         cliente: '',
         servicio: '',
         hora: '10:00',
-        estado: 'pendiente'
+        estado: 'pendiente',
+        telefono: '',
+        domicilio: ''
       }
     });
     setEditForm({
       cliente: '',
       servicio: '',
       hora: '10:00',
-      estado: 'pendiente'
+      estado: 'pendiente',
+      telefono: '',
+      domicilio: ''
     });
   };
 
@@ -355,7 +365,9 @@ function Citas() {
           hora: editForm.hora,
           cliente: editForm.cliente,
           servicio: editForm.servicio,
-          estado: editForm.estado
+          estado: editForm.estado,
+          telefono: editForm.telefono,
+          domicilio: editForm.domicilio
         })
         .select()
         .single();
@@ -383,7 +395,9 @@ function Citas() {
               cliente: (data as any).cliente as string,
               servicio: (data as any).servicio as string,
               hora,
-              estado: (data as any).estado as 'confirmada' | 'pendiente'
+              estado: (data as any).estado as 'confirmada' | 'pendiente',
+              telefono: (data as any).telefono as (string | undefined),
+              domicilio: (data as any).domicilio as (string | undefined)
             }
           ]
         };
@@ -396,7 +410,9 @@ function Citas() {
           cliente: editForm.cliente,
           servicio: editForm.servicio,
           hora: editForm.hora,
-          estado: editForm.estado
+          estado: editForm.estado,
+          telefono: editForm.telefono,
+          domicilio: editForm.domicilio
         })
         .eq('id', editingCita.cita.id);
 
@@ -832,6 +848,27 @@ function Citas() {
                   onChange={(e) => setEditForm(prev => prev ? { ...prev, cliente: e.target.value } : prev)}
                   className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                 />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Teléfono</label>
+                  <input
+                    type="tel"
+                    value={editForm.telefono || ''}
+                    onChange={(e) => setEditForm(prev => prev ? { ...prev, telefono: e.target.value } : prev)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Domicilio</label>
+                  <input
+                    type="text"
+                    value={editForm.domicilio || ''}
+                    onChange={(e) => setEditForm(prev => prev ? { ...prev, domicilio: e.target.value } : prev)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  />
+                </div>
               </div>
 
               <div className="space-y-1">

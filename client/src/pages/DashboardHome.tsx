@@ -87,6 +87,8 @@ function DashboardHome() {
   const [upcomingCitas, setUpcomingCitas] = useState<(CitaPendiente & { fecha: string; dateTime: Date })[]>([]);
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioCatalogo[]>([]);
   const [formCliente, setFormCliente] = useState('');
+  const [formTelefono, setFormTelefono] = useState('');
+  const [formDomicilio, setFormDomicilio] = useState('');
   const [formServicio, setFormServicio] = useState('');
   const [formFecha, setFormFecha] = useState('');
   const [formHora, setFormHora] = useState('10:00');
@@ -190,6 +192,8 @@ function DashboardHome() {
           fecha,
           hora,
           cliente: formCliente,
+          telefono: formTelefono || null,
+          domicilio: formDomicilio || null,
           servicio: formServicio,
           estado: 'pendiente'
         });
@@ -202,6 +206,8 @@ function DashboardHome() {
       await loadCitasDashboard();
       setIsModalOpen(false);
       setFormCliente('');
+      setFormTelefono('');
+      setFormDomicilio('');
       setFormServicio('');
       setFormFecha(todayKey);
       setFormHora('10:00');
@@ -488,6 +494,16 @@ function DashboardHome() {
                       />
                     </div>
                     <div className="space-y-2">
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Teléfono</label>
+                      <input
+                        type="tel"
+                        placeholder="Número de celular..."
+                        value={formTelefono}
+                        onChange={(e) => setFormTelefono(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                      />
+                    </div>
+                    <div className="space-y-2">
                       <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Servicio</label>
                       <select
                         value={formServicio}
@@ -518,6 +534,16 @@ function DashboardHome() {
                         value={formHora}
                         onChange={(e) => setFormHora(e.target.value)}
                         className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Domicilio</label>
+                      <input
+                        type="text"
+                        placeholder="Calle, número, colonia, ciudad..."
+                        value={formDomicilio}
+                        onChange={(e) => setFormDomicilio(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
                       />
                     </div>
                   </div>

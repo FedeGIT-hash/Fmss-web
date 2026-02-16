@@ -9,6 +9,8 @@ interface ClienteResumen {
   nombre: string;
   totalCitas: number;
   ultimaFecha: string | null;
+  telefono?: string | null;
+  domicilio?: string | null;
 }
 
 function Clientes() {
@@ -22,7 +24,7 @@ function Clientes() {
       try {
         const { data, error } = await supabase
           .from('cita_ui')
-          .select('cliente, fecha');
+          .select('cliente, fecha, telefono, domicilio');
 
         if (error) {
           console.error('Error cargando clientes desde Supabase:', error);
@@ -35,7 +37,7 @@ function Clientes() {
           return;
         }
 
-        const map = new Map<string, { total: number; ultima: string | null }>();
+        const map = new Map<string, { total: number; ultima: string | null; telefono?: string | null; domicilio?: string | null }>();
 
         (data as any[]).forEach((row) => {
           const nombreRaw = (row.cliente || '').trim();
@@ -43,14 +45,18 @@ function Clientes() {
           const fecha = row.fecha as string | null;
           const existing = map.get(nombreRaw);
           if (!existing) {
-            map.set(nombreRaw, { total: 1, ultima: fecha || null });
+            map.set(nombreRaw, { total: 1, ultima: fecha || null, telefono: (row as any).telefono ?? null, domicilio: (row as any).domicilio ?? null });
           } else {
             const total = existing.total + 1;
             let ultima = existing.ultima;
+            let telefono = existing.telefono ?? null;
+            let domicilio = existing.domicilio ?? null;
             if (fecha && (!ultima || fecha > ultima)) {
               ultima = fecha;
+              telefono = (row as any).telefono ?? telefono;
+              domicilio = (row as any).domicilio ?? domicilio;
             }
-            map.set(nombreRaw, { total, ultima });
+            map.set(nombreRaw, { total, ultima, telefono, domicilio });
           }
         });
 
@@ -58,7 +64,9 @@ function Clientes() {
           .map(([nombre, value]) => ({
             nombre,
             totalCitas: value.total,
-            ultimaFecha: value.ultima
+            ultimaFecha: value.ultima,
+            telefono: value.telefono ?? null,
+            domicilio: value.domicilio ?? null
           }))
           .sort((a, b) => a.nombre.localeCompare(b.nombre));
 
@@ -146,14 +154,26 @@ function Clientes() {
                     {cliente.totalCitas} {cliente.totalCitas === 1 ? 'cita registrada' : 'citas registradas'}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                  <div className="flex items-center gap-1">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-6 text-xs text-slate-500 dark:text-slate-400">
+                  <div className="flex items-center gap-2">
                     <Calendar size={14} className="text-slate-400" />
                     <span>Última cita:</span>
+                    <span className="font-medium text-slate-700 dark:text-slate-200">
+                      {formatFecha(cliente.ultimaFecha)}
+                    </span>
                   </div>
-                  <span className="font-medium text-slate-700 dark:text-slate-200">
-                    {formatFecha(cliente.ultimaFecha)}
-                  </span>
+                  {cliente.telefono && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-400">Tel:</span>
+                      <span className="font-medium text-slate-700 dark:text-slate-200">{cliente.telefono}</span>
+                    </div>
+                  )}
+                  {cliente.domicilio && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-400">Dom:</span>
+                      <span className="font-medium text-slate-700 dark:text-slate-200">{cliente.domicilio}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

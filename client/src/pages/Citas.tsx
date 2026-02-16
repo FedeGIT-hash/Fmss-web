@@ -365,9 +365,7 @@ function Citas() {
           hora: editForm.hora,
           cliente: editForm.cliente,
           servicio: editForm.servicio,
-          estado: editForm.estado,
-          telefono: editForm.telefono,
-          domicilio: editForm.domicilio
+          estado: editForm.estado
         })
         .select()
         .single();
@@ -376,6 +374,18 @@ function Citas() {
         console.error('Error creando cita en Supabase:', error);
         return;
       }
+
+      try {
+        const raw = localStorage.getItem('clientes_contacto');
+        const store = raw ? JSON.parse(raw) : {};
+        const prev = store[editForm.cliente] || {};
+        store[editForm.cliente] = {
+          telefono: editForm.telefono || prev.telefono || null,
+          domicilio: editForm.domicilio || prev.domicilio || null,
+          updatedAt: new Date().toISOString()
+        };
+        localStorage.setItem('clientes_contacto', JSON.stringify(store));
+      } catch {}
 
       setCitasData(prev => {
         const copy = { ...prev };
@@ -396,8 +406,8 @@ function Citas() {
               servicio: (data as any).servicio as string,
               hora,
               estado: (data as any).estado as 'confirmada' | 'pendiente',
-              telefono: (data as any).telefono as (string | undefined),
-              domicilio: (data as any).domicilio as (string | undefined)
+              telefono: (editForm.telefono || undefined),
+              domicilio: (editForm.domicilio || undefined)
             }
           ]
         };
@@ -410,9 +420,7 @@ function Citas() {
           cliente: editForm.cliente,
           servicio: editForm.servicio,
           hora: editForm.hora,
-          estado: editForm.estado,
-          telefono: editForm.telefono,
-          domicilio: editForm.domicilio
+          estado: editForm.estado
         })
         .eq('id', editingCita.cita.id);
 
@@ -420,6 +428,18 @@ function Citas() {
         console.error('Error actualizando cita en Supabase:', error);
         return;
       }
+
+      try {
+        const raw = localStorage.getItem('clientes_contacto');
+        const store = raw ? JSON.parse(raw) : {};
+        const prev = store[editForm.cliente] || {};
+        store[editForm.cliente] = {
+          telefono: editForm.telefono || prev.telefono || null,
+          domicilio: editForm.domicilio || prev.domicilio || null,
+          updatedAt: new Date().toISOString()
+        };
+        localStorage.setItem('clientes_contacto', JSON.stringify(store));
+      } catch {}
 
       setCitasData(prev => {
         const copy = { ...prev };

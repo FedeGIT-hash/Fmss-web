@@ -192,8 +192,6 @@ function DashboardHome() {
           fecha,
           hora,
           cliente: formCliente,
-          telefono: formTelefono || null,
-          domicilio: formDomicilio || null,
           servicio: formServicio,
           estado: 'pendiente'
         });
@@ -202,6 +200,18 @@ function DashboardHome() {
         console.error('Error creando cita desde dashboard:', error);
         return;
       }
+
+      try {
+        const raw = localStorage.getItem('clientes_contacto');
+        const store = raw ? JSON.parse(raw) : {};
+        const prev = store[formCliente] || {};
+        store[formCliente] = {
+          telefono: formTelefono || prev.telefono || null,
+          domicilio: formDomicilio || prev.domicilio || null,
+          updatedAt: new Date().toISOString()
+        };
+        localStorage.setItem('clientes_contacto', JSON.stringify(store));
+      } catch {}
 
       await loadCitasDashboard();
       setIsModalOpen(false);

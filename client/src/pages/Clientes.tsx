@@ -24,7 +24,7 @@ function Clientes() {
       try {
         const { data, error } = await supabase
           .from('cita_ui')
-          .select('cliente, fecha, telefono, domicilio');
+          .select('cliente, fecha');
 
         if (error) {
           console.error('Error cargando clientes desde Supabase:', error);
@@ -45,20 +45,38 @@ function Clientes() {
           const fecha = row.fecha as string | null;
           const existing = map.get(nombreRaw);
           if (!existing) {
-            map.set(nombreRaw, { total: 1, ultima: fecha || null, telefono: (row as any).telefono ?? null, domicilio: (row as any).domicilio ?? null });
+            map.set(nombreRaw, { total: 1, ultima: fecha || null });
           } else {
             const total = existing.total + 1;
             let ultima = existing.ultima;
-            let telefono = existing.telefono ?? null;
-            let domicilio = existing.domicilio ?? null;
             if (fecha && (!ultima || fecha > ultima)) {
               ultima = fecha;
-              telefono = (row as any).telefono ?? telefono;
-              domicilio = (row as any).domicilio ?? domicilio;
             }
-            map.set(nombreRaw, { total, ultima, telefono, domicilio });
+            map.set(nombreRaw, { total, ultima });
           }
         });
+
+        try {
+          const raw = localStorage.getItem('clientes_contacto');
+          const store = raw ? JSON.parse(raw) : {};
+          Object.entries(store).forEach(([nombre, info]) => {
+            const existing = map.get(nombre);
+            if (existing) {
+              map.set(nombre, {
+                ...existing,
+                telefono: (info as any).telefono ?? existing.telefono ?? null,
+                domicilio: (info as any).domicilio ?? existing.domicilio ?? null
+              });
+            } else {
+              map.set(nombre, {
+                total: 0,
+                ultima: null,
+                telefono: (info as any).telefono ?? null,
+                domicilio: (info as any).domicilio ?? null
+              });
+            }
+          });
+        } catch {}
 
         const list: ClienteResumen[] = Array.from(map.entries())
           .map(([nombre, value]) => ({

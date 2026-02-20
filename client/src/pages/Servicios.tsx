@@ -90,7 +90,7 @@ function Servicios() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3">
-            <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center text-orange-600 dark:bg-orange-500/10 dark:text-orange-300">
+            <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white dark:bg-slate-100 dark:text-slate-900">
               <Wrench size={20} />
             </div>
             Catálogo de Servicios
@@ -99,9 +99,9 @@ function Servicios() {
         </div>
 
         <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-5 py-2.5 rounded-xl font-medium shadow-lg shadow-orange-500/25 hover:shadow-xl transition-shadow"
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.98, y: 0 }}
+          className="flex items-center gap-2 bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-5 py-2.5 rounded-xl font-medium shadow-lg shadow-slate-900/30 dark:shadow-slate-100/30 hover:shadow-xl transition-all"
         >
           <Plus size={18} />
           Nuevo Servicio
@@ -116,15 +116,15 @@ function Servicios() {
           placeholder="Buscar servicios..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 text-slate-800 dark:text-slate-100"
+          className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 dark:focus:ring-slate-100/20 dark:focus:border-slate-100 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 text-slate-800 dark:text-slate-100"
         />
       </div>
 
       {/* Tabla de Servicios */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
         {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="w-8 h-8 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin"></div>
+            <div className="flex items-center justify-center py-20">
+            <div className="w-8 h-8 border-4 border-slate-900/20 border-t-slate-900 dark:border-slate-100/20 dark:border-t-slate-100 rounded-full animate-spin"></div>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -166,7 +166,7 @@ function Servicios() {
                     >
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-500/10 dark:to-amber-500/10 rounded-xl flex items-center justify-center text-orange-600 dark:text-orange-300 group-hover:scale-110 transition-transform">
+                          <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white dark:bg-slate-100 dark:text-slate-900 group-hover:scale-110 transition-transform">
                             <Wrench size={18} />
                           </div>
                           <span className="font-medium text-slate-800 dark:text-slate-100">{servicio.nombre}</span>

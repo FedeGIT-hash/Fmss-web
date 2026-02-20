@@ -153,7 +153,6 @@ function Servicios() {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6 text-slate-900 dark:text-slate-100"
     >
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-3">
@@ -175,104 +174,114 @@ function Servicios() {
             <Plus size={18} />
             Nuevo Servicio
           </motion.button>
-
-          <AnimatePresence>
-            {isCreating && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 8 }}
-                animate={{ opacity: 1, scale: 1, y: 8 }}
-                exit={{ opacity: 0, scale: 0.9, y: 8 }}
-                transition={{ duration: 0.22 }}
-                className="absolute right-0 top-full mt-3 z-20 w-[340px] max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl p-4"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 flex items-center justify-center">
-                      <Wrench size={16} />
-                    </div>
-                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">
-                      Nuevo servicio
-                    </span>
-                  </div>
-                  <button
-                    onClick={closeCreate}
-                    className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-
-                <div className="space-y-3 mt-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-slate-700 dark:text-slate-200">Nombre</label>
-                    <input
-                      type="text"
-                      value={formNombre}
-                      onChange={(e) => setFormNombre(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 dark:focus:ring-slate-100/20 dark:focus:border-slate-100"
-                      placeholder="Nombre del servicio"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-slate-700 dark:text-slate-200">Descripción</label>
-                    <textarea
-                      value={formDescripcion}
-                      onChange={(e) => setFormDescripcion(e.target.value)}
-                      rows={2}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 dark:focus:ring-slate-100/20 dark:focus:border-slate-100 resize-none"
-                      placeholder="Descripción breve"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-700 dark:text-slate-200">Precio (MXN)</label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={formPrecio}
-                        onChange={(e) => setFormPrecio(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 dark:focus:ring-slate-100/20 dark:focus:border-slate-100"
-                        placeholder="0"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-700 dark:text-slate-200">Tiempo (min)</label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={formTiempo}
-                        onChange={(e) => setFormTiempo(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 dark:focus:ring-slate-100/20 dark:focus:border-slate-100"
-                        placeholder="60"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-2 pt-3">
-                  <button
-                    onClick={closeCreate}
-                    className="px-4 py-2 text-xs font-medium rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={handleCreateServicio}
-                    disabled={isSaving || !formNombre || !formPrecio || !formTiempo}
-                    className={`px-4 py-2 text-xs font-semibold rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 shadow-md transition-all ${
-                      (isSaving || !formNombre || !formPrecio || !formTiempo) ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-lg'
-                    }`}
-                  >
-                    {isSaving ? 'Guardando...' : 'Guardar servicio'}
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
       </div>
+
+      <AnimatePresence>
+        {isCreating && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm"
+            onClick={closeCreate}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+              className="w-full max-w-md mx-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl p-5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 flex items-center justify-center">
+                    <Wrench size={16} />
+                  </div>
+                  <span className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                    Nuevo servicio
+                  </span>
+                </div>
+                <button
+                  onClick={closeCreate}
+                  className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+
+              <div className="space-y-3 mt-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-700 dark:text-slate-200">Nombre</label>
+                  <input
+                    type="text"
+                    value={formNombre}
+                    onChange={(e) => setFormNombre(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 dark:focus:ring-slate-100/20 dark:focus:border-slate-100"
+                    placeholder="Nombre del servicio"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-slate-700 dark:text-slate-200">Descripción</label>
+                  <textarea
+                    value={formDescripcion}
+                    onChange={(e) => setFormDescripcion(e.target.value)}
+                    rows={2}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 dark:focus:ring-slate-100/20 dark:focus:border-slate-100 resize-none"
+                    placeholder="Descripción breve"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-slate-700 dark:text-slate-200">Precio (MXN)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={formPrecio}
+                      onChange={(e) => setFormPrecio(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 dark:focus:ring-slate-100/20 dark:focus:border-slate-100"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-slate-700 dark:text-slate-200">Tiempo (min)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={formTiempo}
+                      onChange={(e) => setFormTiempo(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-900 dark:focus:ring-slate-100/20 dark:focus:border-slate-100"
+                      placeholder="60"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3">
+                <button
+                  onClick={closeCreate}
+                  className="px-4 py-2 text-xs font-medium rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleCreateServicio}
+                  disabled={isSaving || !formNombre || !formPrecio || !formTiempo}
+                  className={`px-4 py-2 text-xs font-semibold rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 shadow-md transition-all ${
+                    (isSaving || !formNombre || !formPrecio || !formTiempo) ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-lg'
+                  }`}
+                >
+                  {isSaving ? 'Guardando...' : 'Guardar servicio'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Buscador */}
       <div className="relative max-w-md">

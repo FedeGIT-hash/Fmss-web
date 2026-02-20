@@ -202,7 +202,7 @@ function Citas() {
     const loadServicios = async () => {
       try {
         const { data, error } = await supabase
-          .from('SERVICIO')
+          .from('servicio')
           .select('id_servicio, nombre')
           .eq('activo', true)
           .order('nombre');

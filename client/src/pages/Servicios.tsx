@@ -38,7 +38,7 @@ function Servicios() {
   const fetchServicios = async () => {
     try {
       const { data, error } = await supabase
-        .from('SERVICIO')
+        .from('servicio')
         .select('*')
         .eq('activo', true)
         .order('nombre');
@@ -114,7 +114,7 @@ function Servicios() {
     setIsSaving(true);
     try {
       const { data, error } = await supabase
-        .from('SERVICIO')
+        .from('servicio')
         .insert({
           nombre: formNombre,
           descripcion: formDescripcion,
